@@ -1,0 +1,81 @@
+<div class="wrapper">
+  <div class="header">
+    <div class="logo-icon">🔧</div>
+
+    <div class="header-info">
+      <h1>Taller Reyes Polo</h1>
+      <p>Asistente IA · Trujillo, La Libertad</p>
+    </div>
+
+    <div class="status-dot" title="En línea"></div>
+  </div>
+
+  <div class="messages" #messagesContainer>
+    <div class="welcome" *ngIf="messages.length === 0">
+      <div class="welcome-icon">🛠️</div>
+      <h2>Bienvenido</h2>
+      <p>Pregúntame sobre servicios, precios, horarios o repuestos del taller.</p>
+    </div>
+
+    <div
+      class="msg"
+      *ngFor="let message of messages"
+      [class.user]="message.type === 'user'"
+      [class.bot]="message.type === 'bot'"
+      [class.error-msg]="message.isError"
+    >
+      <div class="msg-bubble">
+        {{ message.text }}
+      </div>
+      <span class="msg-time">{{ message.time }}</span>
+    </div>
+
+    <div class="msg bot typing" *ngIf="isLoading">
+      <div class="msg-bubble">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="suggestions" *ngIf="showSuggestions">
+    <button class="chip" (click)="sendChip('¿Qué servicios ofrecen?')">
+      ¿Qué servicios ofrecen?
+    </button>
+
+    <button class="chip" (click)="sendChip('¿Cuáles son sus horarios?')">
+      ¿Cuáles son sus horarios?
+    </button>
+
+    <button class="chip" (click)="sendChip('Precio de filtro de aceite')">
+      Precio de filtro de aceite
+    </button>
+
+    <button class="chip" (click)="sendChip('¿Dónde están ubicados?')">
+      ¿Dónde están ubicados?
+    </button>
+  </div>
+
+  <div class="input-area">
+    <div class="input-wrap">
+      <textarea
+        rows="1"
+        placeholder="Escribe tu consulta..."
+        [(ngModel)]="userInput"
+        (keydown)="handleKey($event)"
+      ></textarea>
+    </div>
+
+    <button
+      class="send-btn"
+      title="Enviar"
+      [disabled]="isLoading || !userInput.trim()"
+      (click)="sendMessage()"
+    >
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+      </svg>
+    </button>
+  </div>
+</div>
