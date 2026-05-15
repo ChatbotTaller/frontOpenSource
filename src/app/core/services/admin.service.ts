@@ -1,20 +1,55 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
+
   private apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('admin_token') || '';
+
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
+
   getCitas(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/citas`);
+    return this.http.get(`${this.apiUrl}/citas`, {
+      headers: this.getHeaders()
+    });
   }
 
   updateEstado(id: number, estado: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/citas/${id}`, { estado });
+    return this.http.put(
+      `${this.apiUrl}/citas/${id}`,
+      { estado },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getMetricas(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/metricas`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  evaluarMetrica(id: number, data: any): Observable<any> {
+    return this.http.put(
+      `${this.apiUrl}/metricas/${id}`,
+      data,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getResumenMetricas(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/metricas/resumen`, {
+      headers: this.getHeaders()
+    });
   }
 }

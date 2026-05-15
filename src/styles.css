@@ -5,7 +5,8 @@ body {
   background: #0d0d0d;
   width: 100%;
   min-height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 * {
