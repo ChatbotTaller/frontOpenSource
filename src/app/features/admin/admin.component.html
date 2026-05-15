@@ -1,6 +1,12 @@
 <div class="admin-container">
 
   <h1>📋 Panel Administrativo</h1>
+  
+  <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+
+  <button class="nav-btn" routerLink="/metricas">
+      Ver métricas IA
+  </button>
 
     <div class="stats-grid">
     <div class="stat-card">
@@ -29,6 +35,33 @@
     </div>
   </div>
 
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>📊 Citas por estado</h3>
+      <canvas id="citasChart"></canvas>
+    </div>
+  </div>
+
+  <div class="filters-container">
+
+    <input
+      type="text"
+      placeholder="Buscar cliente..."
+      [(ngModel)]="busqueda"
+    />
+
+    <select [(ngModel)]="filtroEstado">
+
+      <option value="">Todos</option>
+      <option value="pendiente">Pendientes</option>
+      <option value="confirmada">Confirmadas</option>
+      <option value="completada">Completadas</option>
+      <option value="cancelada">Canceladas</option>
+
+    </select>
+
+  </div>
+
   <div *ngIf="loading">
     Cargando citas...
   </div>
@@ -50,7 +83,7 @@
 
     <tbody>
 
-      <tr *ngFor="let cita of citas">
+      <tr *ngFor="let cita of citasFiltradas">
 
         <td>{{ cita.cliente_nombre }}</td>
         <td>{{ cita.cliente_telefono }}</td>
