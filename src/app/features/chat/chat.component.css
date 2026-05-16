@@ -225,3 +225,24 @@ textarea {
 .error-msg .msg-bubble {
   background: rgba(255,0,0,0.15);
 }
+
+.cancel-flow-container {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 14px;
+}
+
+.cancel-flow-btn {
+  background: transparent;
+  color: #ff4b3e;
+  border: 1px solid #ff4b3e;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cancel-flow-btn:hover {
+  background: #ff4b3e;
+  color: white;
+}

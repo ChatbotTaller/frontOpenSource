@@ -20,6 +20,7 @@ interface ChatMessage {
 export class ChatComponent {
   userInput = '';
   isLoading = false;
+  enFlujoCita = false;
   showSuggestions = true;
 
   messages: ChatMessage[] = [];
@@ -67,6 +68,17 @@ export class ChatComponent {
     this.chatbotService.sendMessage(text).subscribe({
       next: (response) => {
         this.addMessage(response.reply || 'Sin respuesta del servidor.', 'bot');
+
+        const respuesta = response.reply || '';
+
+        if (respuesta.includes('Se canceló el proceso de agendamiento')) {
+          this.enFlujoCita = false;
+        } else {
+          this.enFlujoCita =
+            response.intent === 'appointment' ||
+            response.intent === 'appointment_pending';
+        }
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -79,5 +91,12 @@ export class ChatComponent {
         this.isLoading = false;
       }
     });
+  }
+
+  cancelarAgendamiento(): void {
+    if (this.isLoading) return;
+
+    this.userInput = 'cancelar';
+    this.sendMessage();
   }
 }

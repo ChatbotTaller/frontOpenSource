@@ -77,9 +77,15 @@ button {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
   margin-bottom: 30px;
+}
+
+@media (max-width: 1000px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .chart-card {
@@ -99,4 +105,19 @@ button {
 .chart-card canvas {
   width: 100% !important;
   height: 260px !important;
+}
+
+.respuesta-cell {
+  max-width: 420px;
+  white-space: pre-wrap;
+  line-height: 1.4;
+  color: #ddd;
+}
+
+td select {
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
 }
