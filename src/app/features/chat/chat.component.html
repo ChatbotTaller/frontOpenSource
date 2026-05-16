@@ -57,6 +57,12 @@
     </button>
   </div>
 
+  <div class="cancel-flow-container" *ngIf="enFlujoCita">
+    <button class="cancel-flow-btn" (click)="cancelarAgendamiento()">
+      ✖ Cancelar agendamiento
+    </button>
+  </div>
+
   <div class="input-area">
     <div class="input-wrap">
       <textarea
