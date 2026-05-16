@@ -52,4 +52,10 @@ export class AdminService {
       headers: this.getHeaders()
     });
   }
+
+  getMetricasPorIntent(): Observable<any> {
+  return this.http.get(`${this.apiUrl}/metricas/por-intent`, {
+    headers: this.getHeaders()
+  });
+}
 }

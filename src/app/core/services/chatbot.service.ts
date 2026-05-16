@@ -12,7 +12,7 @@ interface ChatbotResponse {
   providedIn: 'root'
 })
 export class ChatbotService {
-  private backendUrl = 'https://e14c-190-232-53-173.ngrok-free.app/webhook';
+  private backendUrl = 'https://5f2c-190-216-181-160.ngrok-free.app/webhook';
 
   constructor(private http: HttpClient) {}
 

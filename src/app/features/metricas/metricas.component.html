@@ -35,11 +35,18 @@
 
     </div>
 
-    <div class="charts-grid">
+  <div class="charts-grid">
+
     <div class="chart-card">
       <h3>📊 Rendimiento IA</h3>
       <canvas id="metricasChart"></canvas>
     </div>
+
+    <div class="chart-card">
+      <h3>🧠 Accuracy por intención</h3>
+      <canvas id="intentChart"></canvas>
+    </div>
+
   </div>
 
   <table>
@@ -47,49 +54,56 @@
     <thead>
       <tr>
         <th>Pregunta</th>
-        <th>Intent</th>
+        <th>Respuesta IA</th>
+        <th>Intent detectado</th>
+        <th>Intent correcto</th>
         <th>Tiempo</th>
-        <th>Correcta</th>
+        <th>Respuesta correcta</th>
         <th>Acciones</th>
       </tr>
     </thead>
 
     <tbody>
 
-      <tr *ngFor="let m of metricas">
+      <tr *ngFor="let metrica of metricas">
 
-        <td>{{ m.pregunta }}</td>
+        <td>{{ metrica.pregunta }}</td>
 
-        <td>{{ m.intencion_detectada }}</td>
+        <td class="respuesta-cell">
+          {{ metrica.respuesta }}
+        </td>
 
-        <td>{{ m.tiempo_respuesta_ms }} ms</td>
+        <td>{{ metrica.intencion_detectada }}</td>
 
         <td>
+          <select [(ngModel)]="metrica.intencion_correcta">
+            <option value="">Seleccionar</option>
+            <option value="appointment">appointment</option>
+            <option value="services">services</option>
+            <option value="inventory">inventory</option>
+            <option value="schedule">schedule</option>
+            <option value="info">info</option>
+            <option value="saludo">saludo</option>
+            <option value="appointment_pending">appointment_pending</option>
+          </select>
+        </td>
 
-          <span *ngIf="m.respuesta_correcta === true">
-            ✅
-          </span>
+        <td>{{ metrica.tiempo_respuesta_ms }} ms</td>
 
-          <span *ngIf="m.respuesta_correcta === false">
-            ❌
-          </span>
-
-          <span *ngIf="m.respuesta_correcta === null">
-            ⏳
-          </span>
-
+        <td>
+          <span *ngIf="metrica.respuesta_correcta === 1">✅</span>
+          <span *ngIf="metrica.respuesta_correcta === 0">❌</span>
+          <span *ngIf="metrica.respuesta_correcta === null">⏳</span>
         </td>
 
         <td>
-
-          <button (click)="evaluar(m.id, true)">
+          <button (click)="evaluar(metrica.id, true, metrica.intencion_correcta)">
             Correcta
           </button>
 
-          <button (click)="evaluar(m.id, false)">
+          <button (click)="evaluar(metrica.id, false, metrica.intencion_correcta)">
             Incorrecta
           </button>
-
         </td>
 
       </tr>
