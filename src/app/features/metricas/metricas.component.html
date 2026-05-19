@@ -4,32 +4,33 @@
     ← Volver al panel
   </button>
 
-  <h1>📊 Métricas IA</h1>
+  <h1> Métricas IA</h1>
 
     <div class="cards-container">
 
     <div class="card-metrica">
-        <h3>🎯 Accuracy</h3>
+      
+        <h3>Accuracy</h3>
         <p>{{ resumen.accuracy }}%</p>
     </div>
 
     <div class="card-metrica">
-        <h3>📌 Precision</h3>
+        <h3>Precision</h3>
         <p>{{ resumen.precision }}%</p>
     </div>
 
     <div class="card-metrica">
-        <h3>📈 Recall</h3>
+        <h3>Recall</h3>
         <p>{{ resumen.recall }}%</p>
     </div>
 
     <div class="card-metrica">
-        <h3>⚖️ F1 Score</h3>
+        <h3>F1 Score</h3>
         <p>{{ resumen.f1_score }}%</p>
     </div>
 
     <div class="card-metrica">
-        <h3>⚡ Tiempo Promedio</h3>
+        <h3>Tiempo Promedio</h3>
         <p>{{ resumen.tiempo_promedio_ms }} ms</p>
     </div>
 
@@ -37,19 +38,19 @@
 
     <div class="export-container">
     <button class="export-btn" (click)="exportarExcel()">
-      📥 Exportar Excel
+      Exportar Excel
     </button>
   </div>
 
   <div class="charts-grid">
 
     <div class="chart-card">
-      <h3>📊 Rendimiento IA</h3>
+      <h3>Rendimiento IA</h3>
       <canvas id="metricasChart"></canvas>
     </div>
 
     <div class="chart-card">
-      <h3>🧠 Accuracy por intención</h3>
+      <h3>Accuracy por intención</h3>
       <canvas id="intentChart"></canvas>
     </div>
 

@@ -1,6 +1,6 @@
 <div class="admin-container">
 
-  <h1>📋 Panel Administrativo</h1>
+  <h1>Panel Administrativo</h1>
   
   <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
 
@@ -8,36 +8,46 @@
       Ver métricas IA
   </button>
 
-    <div class="stats-grid">
-    <div class="stat-card">
+    <a
+    class="btn-calendar"
+    href="https://calendar.google.com/calendar/u/0/r"
+    target="_blank"
+  >
+    Ver Google Calendar
+  </a>
+
+  <div class="stats-grid">
+
+    <div class="stat-card total">
       <span>Total</span>
       <strong>{{ totalCitas }}</strong>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card pendientes">
       <span>Pendientes</span>
       <strong>{{ citasPendientes }}</strong>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card confirmadas">
       <span>Confirmadas</span>
       <strong>{{ citasConfirmadas }}</strong>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card completadas">
       <span>Completadas</span>
       <strong>{{ citasCompletadas }}</strong>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card canceladas">
       <span>Canceladas</span>
       <strong>{{ citasCanceladas }}</strong>
     </div>
+
   </div>
 
   <div class="charts-grid">
     <div class="chart-card">
-      <h3>📊 Citas por estado</h3>
+      <h3>Citas por estado</h3>
       <canvas id="citasChart"></canvas>
     </div>
   </div>
@@ -68,7 +78,7 @@
 
   <div class="export-container">
     <button class="export-btn" (click)="exportarCitasExcel()">
-      📥 Exportar citas
+      Exportar citas
     </button>
   </div>
 
