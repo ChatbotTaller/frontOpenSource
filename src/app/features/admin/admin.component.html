@@ -66,6 +66,12 @@
     Cargando citas...
   </div>
 
+  <div class="export-container">
+    <button class="export-btn" (click)="exportarCitasExcel()">
+      📥 Exportar citas
+    </button>
+  </div>
+
   <table *ngIf="!loading">
 
     <thead>
