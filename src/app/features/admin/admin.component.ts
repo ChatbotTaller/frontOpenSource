@@ -6,6 +6,8 @@ import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { FormsModule } from '@angular/forms';
 
+import * as XLSX from 'xlsx-js-style';
+
 @Component({
   selector: 'app-admin',
   standalone: true,
@@ -107,6 +109,74 @@ export class AdminComponent implements OnInit {
     });
 
 }
+
+  exportarCitasExcel(): void {
+    const data = this.citasFiltradas.map((cita: any) => ({
+      Cliente: cita.cliente_nombre,
+      Telefono: cita.cliente_telefono,
+      Vehiculo: cita.vehiculo_texto,
+      Servicio: cita.motivo,
+      Fecha: cita.fecha,
+      Hora: cita.hora,
+      Estado: cita.estado
+    }));
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:G1');
+
+    for (let row = range.s.r; row <= range.e.r; row++) {
+      for (let col = range.s.c; col <= range.e.c; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+        const cell = worksheet[cellAddress];
+
+        if (!cell) continue;
+
+        cell.s = {
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center',
+            wrapText: true
+          },
+          border: {
+            top: { style: 'thin', color: { rgb: '000000' } },
+            bottom: { style: 'thin', color: { rgb: '000000' } },
+            left: { style: 'thin', color: { rgb: '000000' } },
+            right: { style: 'thin', color: { rgb: '000000' } }
+          }
+        };
+
+        if (row === 0) {
+          cell.s = {
+            ...cell.s,
+            font: {
+              bold: true,
+              color: { rgb: 'FFFFFF' }
+            },
+            fill: {
+              fgColor: { rgb: 'C0392B' }
+            }
+          };
+        }
+      }
+    }
+
+    worksheet['!cols'] = [
+      { wch: 25 },
+      { wch: 16 },
+      { wch: 28 },
+      { wch: 45 },
+      { wch: 22 },
+      { wch: 14 },
+      { wch: 16 }
+    ];
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { Citas: worksheet },
+      SheetNames: ['Citas']
+    };
+
+    XLSX.writeFile(workbook, 'citas_taller_reyes.xlsx');
+  }
 
 logout(): void {
     localStorage.removeItem('admin_token');
