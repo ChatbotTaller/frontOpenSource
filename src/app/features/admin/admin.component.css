@@ -164,3 +164,62 @@ button:hover {
 .export-btn:hover {
   opacity: 0.9;
 }
+
+.btn-calendar {
+  display: inline-block;
+  background: #1a73e8;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 18px;
+}
+
+.btn-calendar:hover {
+  background: #1558b0;
+}
+
+
+.metric-card {
+  border-radius: 18px;
+  padding: 24px;
+  color: white;
+  transition: 0.3s;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+}
+
+.total {
+  background: rgba(52, 152, 219, 0.15);
+  border-color: rgba(52, 152, 219, 0.4);
+}
+
+.pendientes {
+  background: rgba(241, 196, 15, 0.15);
+  border-color: rgba(241, 196, 15, 0.4);
+}
+
+.confirmadas {
+  background: rgba(46, 204, 113, 0.15);
+  border-color: rgba(46, 204, 113, 0.4);
+}
+
+.completadas {
+  background: rgba(39, 174, 96, 0.12);
+  border-color: rgba(39, 174, 96, 0.35);
+}
+
+.canceladas {
+  background: rgba(231, 76, 60, 0.15);
+  border-color: rgba(231, 76, 60, 0.4);
+}
+
+.total strong { color: #3498db; }
+.pendientes strong { color: #f1c40f; }
+.confirmadas strong { color: #2ecc71; }
+.completadas strong { color: #27ae60; }
+.canceladas strong { color: #e74c3c; }

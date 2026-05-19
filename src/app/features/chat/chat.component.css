@@ -246,3 +246,37 @@ textarea {
   background: #ff4b3e;
   color: white;
 }
+
+.logo-header-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  text-decoration: none;
+}
+
+.whatsapp-btn-icon {
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+}
+
+.whatsapp-btn:hover {
+  transform: scale(1.08);
+}
