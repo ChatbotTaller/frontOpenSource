@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../core/services/chatbot.service';
 
@@ -17,14 +17,47 @@ interface ChatMessage {
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit {
   userInput = '';
   isLoading = false;
   enFlujoCita = false;
   showSuggestions = true;
 
   messages: ChatMessage[] = [];
+
   constructor(private chatbotService: ChatbotService) {}
+
+  ngOnInit(): void {
+    this.loadMessages();
+  }
+
+  private getSessionId(): string {
+    let sessionId = localStorage.getItem('chat_session_id');
+
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      localStorage.setItem('chat_session_id', sessionId);
+    }
+
+    return sessionId;
+  }
+
+  private getStorageKey(): string {
+    return `chat_messages_${this.getSessionId()}`;
+  }
+
+  private saveMessages(): void {
+    localStorage.setItem(this.getStorageKey(), JSON.stringify(this.messages));
+  }
+
+  private loadMessages(): void {
+    const savedMessages = localStorage.getItem(this.getStorageKey());
+
+    if (savedMessages) {
+      this.messages = JSON.parse(savedMessages);
+      this.showSuggestions = this.messages.length === 0;
+    }
+  }
 
   getTime(): string {
     return new Date().toLocaleTimeString('es-PE', {
@@ -40,6 +73,8 @@ export class ChatComponent {
       time: this.getTime(),
       isError
     });
+
+    this.saveMessages();
   }
 
   sendChip(text: string): void {
