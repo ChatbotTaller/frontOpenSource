@@ -108,19 +108,22 @@
         <td>{{ cita.fecha | date:'yyyy-MM-dd' }}</td>
         <td>{{ cita.hora }}</td>
         <td>{{ cita.estado }}</td>
-        <td>
+        <td class="acciones-admin">
 
             <button
+                class="btn-confirmar"
                 (click)="cambiarEstado(cita.id, 'confirmada')">
                 Confirmar
             </button>
 
             <button
+                class="btn-completar"
                 (click)="cambiarEstado(cita.id, 'completada')">
                 Completar
             </button>
 
             <button
+                class="btn-cancelar"
                 (click)="cambiarEstado(cita.id, 'cancelada')">
                 Cancelar
             </button>

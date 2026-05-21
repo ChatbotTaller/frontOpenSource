@@ -223,3 +223,106 @@ button:hover {
 .confirmadas strong { color: #2ecc71; }
 .completadas strong { color: #27ae60; }
 .canceladas strong { color: #e74c3c; }
+
+@media (max-width: 768px) {
+  .admin-container {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-container {
+    flex-direction: column;
+  }
+
+  .filters-container input,
+  .filters-container select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .chart-card {
+    height: 300px;
+    padding: 16px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  button,
+  .nav-btn,
+  .btn-calendar,
+  .export-btn {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .export-container {
+    justify-content: stretch;
+  }
+}
+
+.acciones-admin {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-confirmar,
+.btn-completar,
+.btn-cancelar {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: white;
+  min-width: 110px;
+}
+
+/* Confirmar */
+.btn-confirmar {
+  background: #2563eb;
+}
+
+.btn-confirmar:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+/* Completar */
+.btn-completar {
+  background: #16a34a;
+}
+
+.btn-completar:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+}
+
+/* Cancelar */
+.btn-cancelar {
+  background: #dc2626;
+}
+
+.btn-cancelar:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+}
