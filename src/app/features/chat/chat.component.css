@@ -280,3 +280,53 @@ textarea {
 .whatsapp-btn:hover {
   transform: scale(1.08);
 }
+
+@media (max-width: 600px) {
+  .wrapper {
+    max-width: 100%;
+    height: 100dvh;
+  }
+
+  .header {
+    padding: 14px;
+  }
+
+  .header-info h1 {
+    font-size: 18px;
+  }
+
+  .header-info p {
+    font-size: 11px;
+  }
+
+  .messages {
+    padding: 14px;
+  }
+
+  .msg {
+    max-width: 90%;
+  }
+
+  .suggestions {
+    padding: 0 14px 10px;
+  }
+
+  .chip {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .input-area {
+    padding: 12px 14px;
+  }
+
+  .whatsapp-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .whatsapp-btn-icon {
+    width: 38px;
+    height: 38px;
+  }
+}

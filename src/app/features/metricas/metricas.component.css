@@ -141,3 +141,90 @@ td select {
 .export-btn:hover {
   opacity: 0.9;
 }
+
+@media (max-width: 768px) {
+  .metricas-container {
+    padding: 18px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    height: 300px;
+    padding: 16px;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .respuesta-cell {
+    max-width: 280px;
+  }
+
+  .back-btn,
+  .export-btn {
+    width: 100%;
+  }
+
+  .export-container {
+    justify-content: stretch;
+  }
+}
+
+.actions-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-correcta,
+.btn-incorrecta {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 120px;
+}
+
+.btn-correcta {
+  background: #16a34a;
+  color: white;
+}
+
+.btn-correcta:hover {
+  background: #15803d;
+  transform: translateY(-2px);
+}
+
+.btn-incorrecta {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-incorrecta:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+}

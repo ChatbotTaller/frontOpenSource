@@ -103,12 +103,16 @@
           <span *ngIf="metrica.respuesta_correcta === null">⏳</span>
         </td>
 
-        <td>
-          <button (click)="evaluar(metrica.id, true, metrica.intencion_correcta)">
+        <td class="actions-cell">
+          <button 
+            class="btn-correcta"
+            (click)="evaluar(metrica.id, true, metrica.intencion_correcta)">
             Correcta
           </button>
 
-          <button (click)="evaluar(metrica.id, false, metrica.intencion_correcta)">
+          <button 
+            class="btn-incorrecta"
+            (click)="evaluar(metrica.id, false, metrica.intencion_correcta)">
             Incorrecta
           </button>
         </td>

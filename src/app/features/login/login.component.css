@@ -65,3 +65,18 @@ body {
   color: #ff4d37;
   margin-top: 15px;
 }
+
+@media (max-width: 600px) {
+  .login-container {
+    padding: 20px;
+  }
+
+  .login-card {
+    width: 100%;
+    padding: 28px 22px;
+  }
+
+  .login-card h1 {
+    font-size: 24px;
+  }
+}
