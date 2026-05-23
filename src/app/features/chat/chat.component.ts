@@ -102,13 +102,26 @@ export class ChatComponent implements OnInit {
 
     this.chatbotService.sendMessage(text).subscribe({
       next: (response) => {
+
         this.addMessage(response.reply || 'Sin respuesta del servidor.', 'bot');
 
         const respuesta = response.reply || '';
 
-        if (respuesta.includes('Se canceló el proceso de agendamiento')) {
+        if (
+          respuesta.includes('Tu cita fue registrada correctamente') ||
+          respuesta.includes('cita fue registrada correctamente')
+        ) {
+
           this.enFlujoCita = false;
+
+        } else if (
+          respuesta.includes('Se canceló el proceso de agendamiento')
+        ) {
+
+          this.enFlujoCita = false;
+
         } else {
+
           this.enFlujoCita =
             response.intent === 'appointment' ||
             response.intent === 'appointment_pending';
