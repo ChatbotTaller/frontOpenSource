@@ -1,80 +1,78 @@
 <div class="wrapper">
+
   <div class="header">
-
     <div class="header-left">
-        <img
-          src="/ReyesPolo.jpeg"
-          alt="Reyes Polo"
-          class="logo-header-icon"
-        />
-
+      <img src="/ReyesPolo.jpeg" alt="Reyes Polo" class="logo-header-icon" />
       <div class="header-info">
         <h1>Taller Reyes Polo</h1>
         <p>Asistente IA · Trujillo, La Libertad</p>
       </div>
     </div>
 
-    <a
-      class="whatsapp-btn"
-      href="https://wa.me/15556406310?text=Hola%2C%20quiero%20hacer%20una%20consulta"
-      target="_blank"
-      title="Abrir WhatsApp"
-    >
-      <img
-        src="/IconoWhatsapp.png"
-        alt="WhatsApp"
-        class="whatsapp-btn-icon"
-      />
-    </a>
+    <div class="header-actions">
+      <div class="status-pill">
+        <div class="status-dot"></div>
+        <span class="status-label">En línea</span>
+      </div>
 
-    <div class="status-dot" title="En línea"></div>
+      <a
+        class="whatsapp-btn"
+        href="https://wa.me/15556406310?text=Hola%2C%20quiero%20hacer%20una%20consulta"
+        target="_blank"
+        title="Abrir WhatsApp"
+        aria-label="Contactar por WhatsApp"
+      >
+        <img src="/IconoWhatsapp.png" alt="WhatsApp" class="whatsapp-btn-icon" />
+      </a>
+    </div>
   </div>
 
   <div class="messages" #messagesContainer>
-    <div class="welcome" *ngIf="messages.length === 0">
-      <div class="welcome-icon">🛠️</div>
-      <h2>Bienvenido</h2>
-      <p>Pregúntame sobre servicios, precios, horarios o repuestos del taller.</p>
+
+    <div class="welcome-container" *ngIf="messages.length === 0">
+      <div class="welcome">
+        <div class="welcome-icon">🔧</div>
+        <h2>¡Bienvenido!</h2>
+        <p>Pregúntame sobre servicios, precios,<br>horarios o repuestos del taller.</p>
+      </div>
     </div>
 
     <div
-      class="msg"
+      class="msg-row"
       *ngFor="let message of messages"
       [class.user]="message.type === 'user'"
       [class.bot]="message.type === 'bot'"
       [class.error-msg]="message.isError"
     >
-      <div class="msg-bubble">
-        {{ message.text }}
+      <div class="msg-inner">
+        <div class="msg">
+          <div class="msg-bubble">{{ message.text }}</div>
+          <span class="msg-time">{{ message.time }}</span>
+        </div>
       </div>
-      <span class="msg-time">{{ message.time }}</span>
     </div>
 
-    <div class="msg bot typing" *ngIf="isLoading">
-      <div class="msg-bubble">
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
-        <div class="typing-dot"></div>
+    <div class="msg-row bot typing" *ngIf="isLoading">
+      <div class="msg-inner">
+        <div class="msg">
+          <div class="msg-bubble">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 
   <div class="suggestions" *ngIf="showSuggestions">
-    <button class="chip" (click)="sendChip('¿Qué servicios ofrecen?')">
-      ¿Qué servicios ofrecen?
-    </button>
-
-    <button class="chip" (click)="sendChip('¿Cuáles son sus horarios?')">
-      ¿Cuáles son sus horarios?
-    </button>
-
-    <button class="chip" (click)="sendChip('Precio de filtro de aceite')">
-      Precio de filtro de aceite
-    </button>
-
-    <button class="chip" (click)="sendChip('¿Dónde están ubicados?')">
-      ¿Dónde están ubicados?
-    </button>
+    <div class="suggestions-inner">
+      <button class="chip" (click)="sendChip('¿Qué servicios ofrecen?')">¿Qué servicios ofrecen?</button>
+      <button class="chip" (click)="sendChip('¿Cuáles son sus horarios?')">¿Cuáles son sus horarios?</button>
+      <button class="chip" (click)="sendChip('Precio de filtro de aceite')">Precio de filtro de aceite</button>
+      <button class="chip" (click)="sendChip('¿Dónde están ubicados?')">¿Dónde están ubicados?</button>
+    </div>
   </div>
 
   <div class="cancel-flow-container" *ngIf="enFlujoCita">
@@ -83,25 +81,29 @@
     </button>
   </div>
 
-  <div class="input-area">
-    <div class="input-wrap">
-      <textarea
-        rows="1"
-        placeholder="Escribe tu consulta..."
-        [(ngModel)]="userInput"
-        (keydown)="handleKey($event)"
-      ></textarea>
+  <div class="input-zone">
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea
+          rows="1"
+          placeholder="Escribe tu consulta..."
+          [(ngModel)]="userInput"
+          (keydown)="handleKey($event)"
+          (input)="autoResize($event)"
+        ></textarea>
+      </div>
+      <button
+        class="send-btn"
+        title="Enviar"
+        [disabled]="isLoading || !userInput.trim()"
+        (click)="sendMessage()"
+        aria-label="Enviar mensaje"
+      >
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg>
+      </button>
     </div>
-
-    <button
-      class="send-btn"
-      title="Enviar"
-      [disabled]="isLoading || !userInput.trim()"
-      (click)="sendMessage()"
-    >
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-      </svg>
-    </button>
   </div>
+
 </div>

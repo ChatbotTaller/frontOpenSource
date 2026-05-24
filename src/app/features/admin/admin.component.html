@@ -1,139 +1,141 @@
 <div class="admin-container">
 
-  <h1>Panel Administrativo</h1>
-  
-  <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+  <!-- TOP NAV BAR -->
+  <div class="admin-topbar">
+    <h1>Panel Admin</h1>
+    <span class="topbar-badge">Taller Reyes Polo</span>
 
-  <button class="nav-btn" routerLink="/metricas">
-      Ver métricas IA
-  </button>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary" routerLink="/metricas">
+        📊 Métricas IA
+      </button>
 
-    <a
-    class="btn-calendar"
-    href="https://calendar.google.com/calendar/u/0/r"
-    target="_blank"
-  >
-    Ver Google Calendar
-  </a>
+      <a class="btn btn-blue" href="https://calendar.google.com/calendar/u/0/r" target="_blank">
+        📅 Google Calendar
+      </a>
 
-  <div class="stats-grid">
-
-    <div class="stat-card total">
-      <span>Total</span>
-      <strong>{{ totalCitas }}</strong>
-    </div>
-
-    <div class="stat-card pendientes">
-      <span>Pendientes</span>
-      <strong>{{ citasPendientes }}</strong>
-    </div>
-
-    <div class="stat-card confirmadas">
-      <span>Confirmadas</span>
-      <strong>{{ citasConfirmadas }}</strong>
-    </div>
-
-    <div class="stat-card completadas">
-      <span>Completadas</span>
-      <strong>{{ citasCompletadas }}</strong>
-    </div>
-
-    <div class="stat-card canceladas">
-      <span>Canceladas</span>
-      <strong>{{ citasCanceladas }}</strong>
-    </div>
-
-  </div>
-
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Citas por estado</h3>
-      <canvas id="citasChart"></canvas>
+      <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
     </div>
   </div>
 
-  <div class="filters-container">
+  <!-- CONTENT -->
+  <div class="admin-content">
 
-    <input
-      type="text"
-      placeholder="Buscar cliente..."
-      [(ngModel)]="busqueda"
-    />
+    <!-- STATS -->
+    <p class="section-title">Resumen de citas</p>
+    <div class="stats-grid">
+      <div class="stat-card total">
+        <span>Total</span>
+        <strong>{{ totalCitas }}</strong>
+        <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+      </div>
+      <div class="stat-card pendientes">
+        <span>Pendientes</span>
+        <strong>{{ citasPendientes }}</strong>
+        <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+      </div>
+      <div class="stat-card confirmadas">
+        <span>Confirmadas</span>
+        <strong>{{ citasConfirmadas }}</strong>
+        <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+      </div>
+      <div class="stat-card completadas">
+        <span>Completadas</span>
+        <strong>{{ citasCompletadas }}</strong>
+        <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+      </div>
+      <div class="stat-card canceladas">
+        <span>Canceladas</span>
+        <strong>{{ citasCanceladas }}</strong>
+        <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+      </div>
+    </div>
 
-    <select [(ngModel)]="filtroEstado">
+    <!-- CHART -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Distribución de citas por estado</h3>
+        <canvas id="citasChart"></canvas>
+      </div>
+    </div>
 
-      <option value="">Todos</option>
-      <option value="pendiente">Pendientes</option>
-      <option value="confirmada">Confirmadas</option>
-      <option value="completada">Completadas</option>
-      <option value="cancelada">Canceladas</option>
+    <!-- TABLE SECTION -->
+    <div class="table-card">
 
-    </select>
+      <div class="table-header-row">
+        <h3>Gestión de citas</h3>
+        <button class="btn btn-green-export" (click)="exportarCitasExcel()">
+          ⬇ Exportar Excel
+        </button>
+      </div>
 
+      <!-- Filters -->
+      <div style="padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="filters-row">
+          <input
+            class="filter-input"
+            type="text"
+            placeholder="🔍 Buscar cliente..."
+            [(ngModel)]="busqueda"
+          />
+          <select class="filter-select" [(ngModel)]="filtroEstado">
+            <option value="">Todos los estados</option>
+            <option value="pendiente">Pendientes</option>
+            <option value="confirmada">Confirmadas</option>
+            <option value="completada">Completadas</option>
+            <option value="cancelada">Canceladas</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-row" *ngIf="loading">
+        Cargando citas...
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrapper" *ngIf="!loading">
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Teléfono</th>
+              <th>Vehículo</th>
+              <th>Servicio</th>
+              <th>Fecha</th>
+              <th>Hora</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let cita of citasFiltradas">
+              <td>{{ cita.cliente_nombre }}</td>
+              <td>{{ cita.cliente_telefono }}</td>
+              <td>{{ cita.vehiculo_texto }}</td>
+              <td>{{ cita.motivo }}</td>
+              <td>{{ cita.fecha | date:'dd/MM/yyyy' }}</td>
+              <td>{{ cita.hora }}</td>
+              <td>
+                <span class="estado-badge"
+                  [class.estado-pendiente]="cita.estado === 'pendiente'"
+                  [class.estado-confirmada]="cita.estado === 'confirmada'"
+                  [class.estado-completada]="cita.estado === 'completada'"
+                  [class.estado-cancelada]="cita.estado === 'cancelada'"
+                >
+                  {{ cita.estado }}
+                </span>
+              </td>
+              <td class="acciones-admin">
+                <button class="btn-confirmar" (click)="cambiarEstado(cita.id, 'confirmada')">Confirmar</button>
+                <button class="btn-completar" (click)="cambiarEstado(cita.id, 'completada')">Completar</button>
+                <button class="btn-cancelar"  (click)="cambiarEstado(cita.id, 'cancelada')">Cancelar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
   </div>
-
-  <div *ngIf="loading">
-    Cargando citas...
-  </div>
-
-  <div class="export-container">
-    <button class="export-btn" (click)="exportarCitasExcel()">
-      Exportar citas
-    </button>
-  </div>
-
-  <table *ngIf="!loading">
-
-    <thead>
-      <tr>
-        <th>Cliente</th>
-        <th>Teléfono</th>
-        <th>Vehículo</th>
-        <th>Servicio</th>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody>
-
-      <tr *ngFor="let cita of citasFiltradas">
-
-        <td>{{ cita.cliente_nombre }}</td>
-        <td>{{ cita.cliente_telefono }}</td>
-        <td>{{ cita.vehiculo_texto }}</td>
-        <td>{{ cita.motivo }}</td>
-        <td>{{ cita.fecha | date:'yyyy-MM-dd' }}</td>
-        <td>{{ cita.hora }}</td>
-        <td>{{ cita.estado }}</td>
-        <td class="acciones-admin">
-
-            <button
-                class="btn-confirmar"
-                (click)="cambiarEstado(cita.id, 'confirmada')">
-                Confirmar
-            </button>
-
-            <button
-                class="btn-completar"
-                (click)="cambiarEstado(cita.id, 'completada')">
-                Completar
-            </button>
-
-            <button
-                class="btn-cancelar"
-                (click)="cambiarEstado(cita.id, 'cancelada')">
-                Cancelar
-            </button>
-
-        </td>
-
-      </tr>
-
-    </tbody>
-
-  </table>
-
 </div>
