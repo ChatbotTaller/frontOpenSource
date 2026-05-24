@@ -1,31 +1,39 @@
 <div class="login-container">
-
   <div class="login-card">
 
-    <h1>🔐 Acceso Admin</h1>
+    <div class="login-logo">
+      <h1>Acceso Admin</h1>
+      <p>Panel privado de Taller Reyes Polo</p>
+    </div>
 
-    <p>Panel privado de Taller Reyes Polo</p>
-    
-    <input
-      type="text"
-      placeholder="Usuario"
-      [(ngModel)]="usuario"
-    />
+    <div class="field-group">
+      <label class="field-label">Usuario</label>
+      <input
+        type="text"
+        placeholder="Ingresa tu usuario"
+        [(ngModel)]="usuario"
+      />
+    </div>
 
-    <input
-      type="password"
-      placeholder="Contraseña"
-      [(ngModel)]="password"
-    />
+    <div class="field-group">
+      <label class="field-label">Contraseña</label>
+      <input
+        type="password"
+        placeholder="••••••••"
+        [(ngModel)]="password"
+        (keydown.enter)="login()"
+      />
+    </div>
 
-    <button (click)="login()">
-      Ingresar
+    <button class="login-btn" (click)="login()">
+      Ingresar al panel
     </button>
 
     <div *ngIf="error" class="error">
       {{ error }}
     </div>
 
-  </div>
+    <p class="login-footer">Taller Reyes Polo · Trujillo, La Libertad</p>
 
+  </div>
 </div>
