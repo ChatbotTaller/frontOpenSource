@@ -1,6 +1,6 @@
 /* =============================================
    LOGIN COMPONENT — Premium dark
-   Taller Reyes Polo
+   Fuente: Outfit (carga en producción Vercel)
    ============================================= */
 
 * { box-sizing: border-box; }
@@ -17,16 +17,15 @@
   overflow: hidden;
 }
 
-/* Subtle background glow */
 .login-container::before {
   content: '';
   position: absolute;
-  top: -200px;
+  top: -180px;
   left: 50%;
   transform: translateX(-50%);
-  width: 600px;
-  height: 400px;
-  background: radial-gradient(ellipse, rgba(224,49,30,0.06) 0%, transparent 70%);
+  width: 500px;
+  height: 360px;
+  background: radial-gradient(ellipse, rgba(224,49,30,0.07) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -42,18 +41,16 @@
   z-index: 1;
 }
 
-/* Red top accent line */
 .login-card::before {
   content: '';
   position: absolute;
   top: 0; left: 20px; right: 20px;
   height: 1px;
   background: linear-gradient(90deg, transparent, #e0311e, transparent);
-  opacity: 0.5;
+  opacity: 0.45;
   border-radius: 1px;
 }
 
-/* Logo area */
 .login-logo {
   display: flex;
   flex-direction: column;
@@ -63,46 +60,45 @@
 }
 
 .login-logo-icon {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: 14px;
   background: rgba(224,49,30,0.1);
-  border: 1px solid rgba(224,49,30,0.25);
+  border: 1px solid rgba(224,49,30,0.22);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 14px;
 }
 
 .login-card h1 {
-  font-family: 'Syne', 'Arial Narrow', Arial, sans-serif;
-  font-size: 20px;
-  font-weight: 800;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
   color: #f0ede8;
   margin: 0 0 4px;
-  letter-spacing: -0.4px;
+  letter-spacing: -0.3px;
 }
 
 .login-card p {
-  color: rgba(240,237,232,0.42);
+  color: rgba(240,237,232,0.4);
   font-size: 13px;
   margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* Form fields */
-.field-group {
-  margin-bottom: 14px;
-}
+.field-group { margin-bottom: 14px; }
 
 .field-label {
   display: block;
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(240,237,232,0.5);
-  margin-bottom: 6px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(240,237,232,0.45);
+  margin-bottom: 7px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
 }
 
 .login-card input {
@@ -113,19 +109,18 @@
   background: rgba(255,255,255,0.04);
   color: #f0ede8;
   font-size: 14px;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .login-card input:focus {
-  border-color: rgba(224,49,30,0.45);
-  box-shadow: 0 0 0 3px rgba(224,49,30,0.08);
+  border-color: rgba(224,49,30,0.42);
+  box-shadow: 0 0 0 3px rgba(224,49,30,0.07);
 }
 
-.login-card input::placeholder { color: rgba(240,237,232,0.22); }
+.login-card input::placeholder { color: rgba(240,237,232,0.2); }
 
-/* Submit button */
 .login-btn {
   width: 100%;
   padding: 13px;
@@ -135,40 +130,36 @@
   color: white;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Outfit', system-ui, sans-serif;
   cursor: pointer;
   transition: all 0.18s ease;
   margin-top: 6px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
 }
 
-.login-btn:hover {
-  background: #ff4b38;
-  transform: translateY(-1px);
-}
-
+.login-btn:hover { background: #ff4b38; transform: translateY(-1px); }
 .login-btn:active { transform: translateY(0); }
 
-/* Error */
 .error {
   color: #f87171;
   font-size: 13px;
   margin-top: 14px;
   text-align: center;
-  background: rgba(248,113,113,0.08);
-  border: 1px solid rgba(248,113,113,0.15);
+  background: rgba(248,113,113,0.07);
+  border: 1px solid rgba(248,113,113,0.14);
   border-radius: 8px;
   padding: 9px 12px;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* Footer note */
 .login-footer {
   text-align: center;
   margin-top: 24px;
-  font-size: 11.5px;
-  color: rgba(240,237,232,0.2);
+  font-size: 11px;
+  color: rgba(240,237,232,0.18);
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 @media (max-width: 480px) {
-  .login-card { padding: 32px 24px; }
+  .login-card { padding: 30px 22px; }
 }
