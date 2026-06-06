@@ -27,12 +27,27 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   showSuggestions = true;
   private shouldScroll = false;
 
+  isListening = false;
+  voiceEnabled = true;
+  speechSupported = false;
+  voiceStatus = '';
+  liveTranscript = '';
+
+  private recognition: any = null;
+  private finalTranscript = '';
+  private pressTimer: any = null;
+  isHoldMode = false;
+  private pressStartTime = 0;
+
+  private nextMessageCanal: 'texto' | 'voz' = 'texto';
+
   messages: ChatMessage[] = [];
 
   constructor(private chatbotService: ChatbotService) {}
 
   ngOnInit(): void {
     this.loadMessages();
+    this.initSpeechRecognition();
   }
 
   ngAfterViewChecked(): void {
@@ -106,6 +121,204 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  private initSpeechRecognition(): void {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+
+    this.speechSupported = !!SpeechRecognition;
+
+    if (!SpeechRecognition) {
+      this.voiceStatus = 'Tu navegador no soporta reconocimiento de voz.';
+      return;
+    }
+
+    this.recognition = new SpeechRecognition();
+    this.recognition.lang = 'es-PE';
+    this.recognition.continuous = true;
+    this.recognition.interimResults = true;
+    this.recognition.maxAlternatives = 1;
+
+    this.recognition.onstart = () => {
+      this.isListening = true;
+      this.voiceStatus = 'Escuchando...';
+      this.liveTranscript = '';
+      this.finalTranscript = '';
+      this.playBeep(700);
+    };
+
+    this.recognition.onresult = (event: any) => {
+      let textoFinal = '';
+      let textoTemporal = '';
+
+      for (let i = 0; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+
+        if (event.results[i].isFinal) {
+          textoFinal += transcript + ' ';
+        } else {
+          textoTemporal += transcript;
+        }
+      }
+
+      const textoReconocido = (textoFinal + textoTemporal).trim();
+
+      this.liveTranscript = textoReconocido;
+      this.userInput = textoReconocido;
+      this.voiceStatus = textoReconocido
+        ? 'Transcribiendo tu voz...'
+        : 'Escuchando...';
+    };
+
+    this.recognition.onerror = (event: any) => {
+      console.error('Error reconocimiento de voz:', event.error);
+      this.isListening = false;
+      this.voiceStatus = '';
+      this.liveTranscript = '';
+
+      this.addMessage(
+        'No pude escuchar bien el audio. Intenta hablar más cerca del micrófono.',
+        'bot',
+        true
+      );
+    };
+
+    this.recognition.onend = () => {
+      this.isListening = false;
+    };
+  }
+
+  handleMicPointerDown(event: PointerEvent): void {
+  event.preventDefault();
+
+  if (this.isLoading || !this.speechSupported) return;
+
+  this.pressStartTime = Date.now();
+  this.isHoldMode = false;
+
+  this.pressTimer = setTimeout(() => {
+    this.isHoldMode = true;
+
+    if (!this.isListening) {
+      this.startListening();
+    }
+  }, 180);
+}
+
+handleMicPointerUp(event: PointerEvent): void {
+  event.preventDefault();
+
+  if (this.pressTimer) {
+    clearTimeout(this.pressTimer);
+    this.pressTimer = null;
+  }
+
+  const pressDuration = Date.now() - this.pressStartTime;
+
+  if (this.isHoldMode || pressDuration >= 180) {
+    this.stopListeningAndSend();
+    return;
+  }
+
+  this.toggleListening();
+}
+
+toggleListening(): void {
+  if (this.isListening) {
+    this.stopListeningAndSend();
+  } else {
+    this.startListening();
+  }
+}
+
+startListening(): void {
+  if (!this.recognition || this.isLoading) return;
+
+  try {
+    navigator.mediaDevices?.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    });
+
+    window.speechSynthesis.cancel();
+    this.recognition.start();
+  } catch (error) {
+    console.error('No se pudo iniciar el micrófono:', error);
+    this.isListening = false;
+  }
+}
+
+stopListeningAndSend(): void {
+  if (!this.recognition || !this.isListening) return;
+
+  this.playBeep(420);
+  this.voiceStatus = 'Procesando tu consulta...';
+
+  try {
+    this.recognition.stop();
+  } catch {}
+
+  setTimeout(() => {
+    const text = (this.liveTranscript || this.userInput).trim();
+
+    if (!text) {
+      this.voiceStatus = '';
+      this.liveTranscript = '';
+      return;
+    }
+
+    this.userInput = text;
+    this.nextMessageCanal = 'voz';
+    this.sendMessage();
+    this.liveTranscript = '';
+  }, 250);
+}
+
+  private playBeep(frequency: number): void {
+    try {
+      const audioContext = new AudioContext();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+
+      gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.12);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.12);
+    } catch {}
+  }
+
+  speakResponse(text: string): void {
+    if (!this.voiceEnabled || !('speechSynthesis' in window)) return;
+
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'es-PE';
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  toggleVoice(): void {
+    this.voiceEnabled = !this.voiceEnabled;
+
+    if (!this.voiceEnabled) {
+      window.speechSynthesis.cancel();
+    }
+  }
+
   sendMessage(): void {
     const text = this.userInput.trim();
     if (!text || this.isLoading) return;
@@ -120,10 +333,14 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     this.isLoading = true;
     this.addMessage(text, 'user');
 
-    this.chatbotService.sendMessage(text).subscribe({
+    const canalMensaje = this.nextMessageCanal;
+    this.nextMessageCanal = 'texto';
+
+this.chatbotService.sendMessage(text, canalMensaje).subscribe({
       next: (response) => {
-        this.addMessage(response.reply || 'Sin respuesta del servidor.', 'bot');
-        const respuesta = response.reply || '';
+        const respuesta = response.reply || 'Sin respuesta del servidor.';
+        this.addMessage(respuesta, 'bot');
+        this.speakResponse(respuesta);
 
         if (
           respuesta.includes('Tu cita fue registrada correctamente') ||
@@ -137,6 +354,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
             response.intent === 'appointment_pending';
         }
         this.isLoading = false;
+        this.voiceStatus = '';
       },
       error: (error) => {
         console.error('Error:', error);
@@ -146,6 +364,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
           true
         );
         this.isLoading = false;
+        this.voiceStatus = '';
       }
     });
   }

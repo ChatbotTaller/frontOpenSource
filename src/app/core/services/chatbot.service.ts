@@ -12,14 +12,17 @@ interface ChatbotResponse {
   providedIn: 'root'
 })
 export class ChatbotService {
-  private backendUrl = 'https://backendopensource-production.up.railway.app/webhook';
+  private backendUrl = 'http://localhost:3000/webhook';
 
   constructor(private http: HttpClient) {}
 
-  sendMessage(message: string): Observable<ChatbotResponse> {
+  sendMessage(message: string, canal: 'texto' | 'voz' = 'texto'): Observable<ChatbotResponse> {
     return this.http.post<ChatbotResponse>(this.backendUrl, {
       user_message: message,
-      session_id: this.getSessionId()
+      session_id: this.getSessionId(),
+      canal,
+      stt_exitoso: canal === 'voz' ? 1 : 1,
+      tts_exitoso: canal === 'voz' ? 1 : 1
     });
   }
 

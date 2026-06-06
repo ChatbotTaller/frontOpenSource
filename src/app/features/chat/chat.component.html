@@ -15,6 +15,15 @@
         <span class="status-label">En línea</span>
       </div>
 
+      <button
+        class="voice-toggle-btn"
+        [class.active]="voiceEnabled"
+        (click)="toggleVoice()"
+        title="Activar o desactivar respuesta por voz"
+      >
+        {{ voiceEnabled ? '🔊' : '🔇' }}
+      </button>
+
       <a
         class="whatsapp-btn"
         href="https://wa.me/15556406310?text=Hola%2C%20quiero%20hacer%20una%20consulta"
@@ -81,6 +90,25 @@
     </button>
   </div>
 
+  <div class="voice-status-container" *ngIf="voiceStatus || liveTranscript">
+    <div class="voice-status-card">
+      <div class="voice-visualizer" *ngIf="isListening">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="voice-status-content">
+        <strong>{{ voiceStatus }}</strong>
+        <p *ngIf="liveTranscript">{{ liveTranscript }}</p>
+        <small *ngIf="isListening">Suelta el botón o vuelve a tocar el micrófono para enviar</small>
+      </div>
+    </div>
+  </div>
+
   <div class="input-zone">
     <div class="input-area">
       <div class="input-wrap">
@@ -92,6 +120,18 @@
           (input)="autoResize($event)"
         ></textarea>
       </div>
+      <button
+        class="voice-btn"
+        [class.listening]="isListening"
+        title="Mantén presionado para hablar o toca para activar/desactivar"
+        [disabled]="isLoading || !speechSupported"
+        (pointerdown)="handleMicPointerDown($event)"
+        (pointerup)="handleMicPointerUp($event)"
+        (pointerleave)="isHoldMode && isListening ? stopListeningAndSend() : null"
+        aria-label="Hablar con el asistente"
+      >
+        {{ isListening ? '■' : '🎤' }}
+      </button>
       <button
         class="send-btn"
         title="Enviar"
