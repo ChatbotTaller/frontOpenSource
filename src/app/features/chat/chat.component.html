@@ -36,114 +36,152 @@
     </div>
   </div>
 
-  <div class="messages" #messagesContainer>
+  <div class="chat-layout">
 
-    <div class="welcome-container" *ngIf="messages.length === 0">
-      <div class="welcome">
-        <div class="welcome-icon">🔧</div>
-        <h2>¡Bienvenido!</h2>
-        <p>Pregúntame sobre servicios, precios,<br>horarios o repuestos del taller.</p>
+    <div class="chat-main">
+
+      <div class="messages" #messagesContainer>
+
+        <div class="welcome-container" *ngIf="messages.length === 0">
+          <div class="welcome">
+            <div class="welcome-icon">🔧</div>
+            <h2>¡Bienvenido!</h2>
+            <p>Pregúntame sobre servicios, precios,<br>horarios o repuestos del taller.</p>
+          </div>
+        </div>
+
+        <div
+          class="msg-row"
+          *ngFor="let message of messages"
+          [class.user]="message.type === 'user'"
+          [class.bot]="message.type === 'bot'"
+          [class.error-msg]="message.isError"
+        >
+          <div class="msg-inner">
+            <div class="msg">
+              <div class="msg-bubble">{{ message.text }}</div>
+              <span class="msg-time">{{ message.time }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="msg-row bot typing" *ngIf="isLoading">
+          <div class="msg-inner">
+            <div class="msg">
+              <div class="msg-bubble">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
 
-    <div
-      class="msg-row"
-      *ngFor="let message of messages"
-      [class.user]="message.type === 'user'"
-      [class.bot]="message.type === 'bot'"
-      [class.error-msg]="message.isError"
-    >
-      <div class="msg-inner">
-        <div class="msg">
-          <div class="msg-bubble">{{ message.text }}</div>
-          <span class="msg-time">{{ message.time }}</span>
+      <div class="suggestions" *ngIf="showSuggestions">
+        <div class="suggestions-inner">
+          <button class="chip" (click)="sendChip('¿Qué servicios ofrecen?')">¿Qué servicios ofrecen?</button>
+          <button class="chip" (click)="sendChip('¿Cuáles son sus horarios?')">¿Cuáles son sus horarios?</button>
+          <button class="chip" (click)="sendChip('Precio de filtro de aceite')">Precio de filtro de aceite</button>
+          <button class="chip" (click)="sendChip('¿Dónde están ubicados?')">¿Dónde están ubicados?</button>
         </div>
       </div>
-    </div>
 
-    <div class="msg-row bot typing" *ngIf="isLoading">
-      <div class="msg-inner">
-        <div class="msg">
-          <div class="msg-bubble">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
+      <div class="cancel-flow-container" *ngIf="enFlujoCita">
+        <button class="cancel-flow-btn" (click)="cancelarAgendamiento()">
+          ✖ Cancelar agendamiento
+        </button>
+      </div>
+
+      <div class="voice-status-container" *ngIf="voiceStatus || liveTranscript">
+        <div class="voice-status-card">
+          <div class="voice-visualizer" *ngIf="isListening">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          <div class="voice-status-content">
+            <strong>{{ voiceStatus }}</strong>
+            <p *ngIf="liveTranscript">{{ liveTranscript }}</p>
+            <small *ngIf="isListening">Suelta el botón o vuelve a tocar el micrófono para enviar</small>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
+      <div class="input-zone">
+        <div class="input-area">
+          <div class="input-wrap">
+            <textarea
+              rows="1"
+              placeholder="Escribe tu consulta..."
+              [(ngModel)]="userInput"
+              (keydown)="handleKey($event)"
+              (input)="autoResize($event)"
+            ></textarea>
+          </div>
 
-  <div class="suggestions" *ngIf="showSuggestions">
-    <div class="suggestions-inner">
-      <button class="chip" (click)="sendChip('¿Qué servicios ofrecen?')">¿Qué servicios ofrecen?</button>
-      <button class="chip" (click)="sendChip('¿Cuáles son sus horarios?')">¿Cuáles son sus horarios?</button>
-      <button class="chip" (click)="sendChip('Precio de filtro de aceite')">Precio de filtro de aceite</button>
-      <button class="chip" (click)="sendChip('¿Dónde están ubicados?')">¿Dónde están ubicados?</button>
-    </div>
-  </div>
+          <button
+            class="voice-btn"
+            [class.listening]="isListening"
+            title="Mantén presionado para hablar o toca para activar/desactivar"
+            [disabled]="isLoading || !speechSupported"
+            (pointerdown)="handleMicPointerDown($event)"
+            (pointerup)="handleMicPointerUp($event)"
+            (pointerleave)="isHoldMode && isListening ? stopListeningAndSend() : null"
+            aria-label="Hablar con el asistente"
+          >
+            {{ isListening ? '■' : '🎤' }}
+          </button>
 
-  <div class="cancel-flow-container" *ngIf="enFlujoCita">
-    <button class="cancel-flow-btn" (click)="cancelarAgendamiento()">
-      ✖ Cancelar agendamiento
-    </button>
-  </div>
-
-  <div class="voice-status-container" *ngIf="voiceStatus || liveTranscript">
-    <div class="voice-status-card">
-      <div class="voice-visualizer" *ngIf="isListening">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
+          <button
+            class="send-btn"
+            title="Enviar"
+            [disabled]="isLoading || !userInput.trim()"
+            (click)="sendMessage()"
+            aria-label="Enviar mensaje"
+          >
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div class="voice-status-content">
-        <strong>{{ voiceStatus }}</strong>
-        <p *ngIf="liveTranscript">{{ liveTranscript }}</p>
-        <small *ngIf="isListening">Suelta el botón o vuelve a tocar el micrófono para enviar</small>
-      </div>
     </div>
-  </div>
 
-  <div class="input-zone">
-    <div class="input-area">
-      <div class="input-wrap">
-        <textarea
-          rows="1"
-          placeholder="Escribe tu consulta..."
-          [(ngModel)]="userInput"
-          (keydown)="handleKey($event)"
-          (input)="autoResize($event)"
-        ></textarea>
+    <aside class="mara-panel" [class.speaking]="isBotSpeaking">
+      <div class="mara-card">
+
+        <div class="mara-avatar-wrap">
+          <img src="/mara.png" alt="Mara asistente virtual" class="mara-avatar" />
+          <div class="mara-mouth" *ngIf="isBotSpeaking"></div>
+        </div>
+
+        <div class="mara-info">
+          <h3>Mara</h3>
+          <p>Asistente virtual Reyes Polo</p>
+          <span>
+            {{ isBotSpeaking ? 'Respondiendo por voz...' : 'Lista para ayudarte' }}
+          </span>
+        </div>
+
+        <div class="mara-waves" *ngIf="isBotSpeaking">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
       </div>
-      <button
-        class="voice-btn"
-        [class.listening]="isListening"
-        title="Mantén presionado para hablar o toca para activar/desactivar"
-        [disabled]="isLoading || !speechSupported"
-        (pointerdown)="handleMicPointerDown($event)"
-        (pointerup)="handleMicPointerUp($event)"
-        (pointerleave)="isHoldMode && isListening ? stopListeningAndSend() : null"
-        aria-label="Hablar con el asistente"
-      >
-        {{ isListening ? '■' : '🎤' }}
-      </button>
-      <button
-        class="send-btn"
-        title="Enviar"
-        [disabled]="isLoading || !userInput.trim()"
-        (click)="sendMessage()"
-        aria-label="Enviar mensaje"
-      >
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-        </svg>
-      </button>
-    </div>
+    </aside>
+
   </div>
 
 </div>

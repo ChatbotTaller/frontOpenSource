@@ -612,3 +612,411 @@ textarea::placeholder { color: var(--muted); }
   font-size: 11px;
   color: rgba(240,237,232,0.45);
 }
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 22px;
+  width: 100%;
+  height: calc(100vh - 76px);
+  padding: 18px 26px 18px;
+  box-sizing: border-box;
+}
+
+.chat-main {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mara-panel {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mara-card {
+  width: 100%;
+  max-width: 340px;
+  background: linear-gradient(180deg, rgba(28,28,28,0.96), rgba(10,10,10,0.96));
+  border: 1px solid rgba(224,49,30,0.25);
+  border-radius: 28px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0,0,0,0.42);
+  transition: all 0.25s ease;
+}
+
+.mara-panel.speaking .mara-card {
+  border-color: rgba(224,49,30,0.65);
+  box-shadow:
+    0 0 0 1px rgba(224,49,30,0.28),
+    0 0 42px rgba(224,49,30,0.28),
+    0 24px 70px rgba(0,0,0,0.5);
+}
+
+.mara-avatar-wrap {
+  position: relative;
+  width: 100%;
+  height: 390px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, rgba(224,49,30,0.16), rgba(0,0,0,0.75));
+}
+
+.mara-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transform: scale(1.04);
+}
+
+.mara-panel.speaking .mara-avatar {
+  animation: maraBreath 1.2s ease-in-out infinite;
+}
+
+@keyframes maraBreath {
+  0%, 100% {
+    transform: scale(1.04);
+  }
+  50% {
+    transform: scale(1.065);
+  }
+}
+
+.mara-mouth {
+  position: absolute;
+  left: 50.5%;
+  top: 42%;
+  width: 36px;
+  height: 10px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(40, 0, 6, 0.85) 0%,
+    rgba(90, 8, 18, 0.55) 45%,
+    rgba(160, 30, 45, 0.18) 100%
+  );
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  filter: blur(0.35px);
+  mix-blend-mode: multiply;
+  opacity: 0.72;
+  animation: maraTalkReal 0.18s infinite alternate ease-in-out;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@keyframes maraTalkReal {
+  0% {
+    height: 5px;
+    width: 30px;
+    opacity: 0.45;
+    transform: translate(-50%, -50%) scaleY(0.65);
+  }
+
+  100% {
+    height: 15px;
+    width: 39px;
+    opacity: 0.82;
+    transform: translate(-50%, -50%) scaleY(1.15);
+  }
+}
+
+@keyframes maraTalk {
+  from {
+    height: 6px;
+    width: 30px;
+  }
+  to {
+    height: 18px;
+    width: 42px;
+    border-radius: 999px;
+  }
+}
+
+.mara-info {
+  margin-top: 14px;
+}
+
+.mara-info h3 {
+  margin: 0;
+  color: #f0ede8;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.mara-info p {
+  margin: 4px 0 4px;
+  color: rgba(240,237,232,0.62);
+  font-size: 13px;
+}
+
+.mara-info span {
+  color: #ffb1a4;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mara-waves {
+  height: 42px;
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.mara-waves span {
+  width: 5px;
+  height: 10px;
+  background: #e0311e;
+  border-radius: 999px;
+  animation: maraWave 0.8s infinite ease-in-out;
+}
+
+.mara-waves span:nth-child(2) { animation-delay: 0.1s; }
+.mara-waves span:nth-child(3) { animation-delay: 0.2s; }
+.mara-waves span:nth-child(4) { animation-delay: 0.3s; }
+.mara-waves span:nth-child(5) { animation-delay: 0.4s; }
+.mara-waves span:nth-child(6) { animation-delay: 0.5s; }
+
+@keyframes maraWave {
+  0%, 100% {
+    height: 8px;
+    opacity: 0.45;
+  }
+  50% {
+    height: 36px;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1100px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .mara-panel {
+    display: none;
+  }
+}
+
+.chat-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 22px;
+  width: 100%;
+  min-height: 0;
+  padding: 18px 26px;
+  box-sizing: border-box;
+}
+
+.chat-main {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.mara-panel {
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mara-card {
+  width: 100%;
+  max-width: 340px;
+}
+
+.mara-avatar-wrap {
+  height: 430px;
+}
+
+.mara-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+@media (max-width: 1100px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    height: calc(100dvh - 62px);
+    padding: 10px 12px;
+  }
+
+  .chat-main {
+    order: 2;
+    min-height: 0;
+  }
+
+  .mara-panel {
+    order: 1;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mara-card {
+    max-width: 760px;
+    width: 100%;
+    border-radius: 18px;
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 58px 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mara-avatar-wrap {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    margin: 0;
+  }
+
+  .mara-avatar {
+    transform: scale(1.5);
+    object-position: center 18%;
+  }
+
+  .mara-info {
+    margin: 0;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .mara-info h3 {
+    font-size: 16px;
+  }
+
+  .mara-info p {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mara-info span {
+    font-size: 11px;
+  }
+
+  .mara-waves {
+    margin-top: 0;
+    width: 42px;
+    height: 28px;
+    gap: 3px;
+  }
+
+  .mara-waves span {
+    width: 3px;
+  }
+
+  .mara-mouth {
+    display: none;
+  }
+
+  .messages {
+    padding: 14px 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    padding: 0 12px;
+  }
+
+  .header-info h1 {
+    font-size: 14px;
+  }
+
+  .header-info p {
+    display: none;
+  }
+
+  .status-pill {
+    padding: 4px 8px;
+  }
+
+  .status-label {
+    display: none;
+  }
+
+  .chat-layout {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .mara-card {
+    grid-template-columns: 46px 1fr auto;
+    padding: 8px 10px;
+    border-radius: 16px;
+  }
+
+  .mara-avatar-wrap {
+    width: 46px;
+    height: 46px;
+  }
+
+  .mara-info h3 {
+    font-size: 14px;
+  }
+
+  .mara-info p {
+    display: none;
+  }
+
+  .mara-info span {
+    font-size: 10.5px;
+  }
+
+  .mara-waves {
+    width: 34px;
+    height: 24px;
+  }
+
+  .input-zone {
+    padding: 8px 0 0;
+  }
+
+  .input-area {
+    border-radius: 14px;
+    padding: 8px;
+  }
+
+  .voice-btn,
+  .send-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .msg-inner {
+    padding: 0 4px;
+  }
+
+  .msg {
+    max-width: 90%;
+  }
+
+  .suggestions,
+  .cancel-flow-container,
+  .voice-status-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

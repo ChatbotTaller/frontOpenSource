@@ -23,6 +23,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   userInput = '';
   isLoading = false;
+  isBotSpeaking = false;
   enFlujoCita = false;
   showSuggestions = true;
   private shouldScroll = false;
@@ -298,7 +299,10 @@ stopListeningAndSend(): void {
   }
 
   speakResponse(text: string): void {
-    if (!this.voiceEnabled || !('speechSynthesis' in window)) return;
+    if (!this.voiceEnabled || !('speechSynthesis' in window)) {
+      this.isBotSpeaking = false;
+      return;
+    }
 
     window.speechSynthesis.cancel();
 
@@ -308,6 +312,19 @@ stopListeningAndSend(): void {
     utterance.pitch = 1;
     utterance.volume = 1;
 
+    utterance.onstart = () => {
+      this.isBotSpeaking = true;
+    };
+
+    utterance.onend = () => {
+      this.isBotSpeaking = false;
+    };
+
+    utterance.onerror = () => {
+      this.isBotSpeaking = false;
+    };
+
+    this.isBotSpeaking = true;
     window.speechSynthesis.speak(utterance);
   }
 
@@ -316,6 +333,7 @@ stopListeningAndSend(): void {
 
     if (!this.voiceEnabled) {
       window.speechSynthesis.cancel();
+      this.isBotSpeaking = false;
     }
   }
 
