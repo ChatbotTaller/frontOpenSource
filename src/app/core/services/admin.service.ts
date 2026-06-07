@@ -58,4 +58,10 @@ export class AdminService {
     headers: this.getHeaders()
   });
 }
+
+  getMetricasVoz(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/metricas/voz`, {
+      headers: this.getHeaders()
+    });
+  }
 }
