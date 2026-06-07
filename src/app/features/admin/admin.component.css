@@ -412,3 +412,29 @@ tbody tr:last-child td { border-bottom: none; }
   .stat-card { padding: 14px; }
   .stat-card strong { font-size: 26px; }
 }
+
+.voice-metrics-grid {
+  margin-bottom: 28px;
+}
+
+.voice-card strong {
+  color: #e0311e;
+}
+
+.voice-card small {
+  font-size: 14px;
+  color: rgba(240,237,232,0.45);
+}
+
+.voice-card .stat-bar-fill {
+  background: #e0311e;
+  width: 100%;
+}
+
+.voice-charts-grid {
+  margin-bottom: 28px;
+}
+
+.voice-charts-grid .chart-card canvas {
+  height: 260px !important;
+}
