@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../core/services/chatbot.service';
+import { RetellWebClient } from 'retell-client-js-sdk';
 
 interface ChatMessage {
   text: string;
@@ -30,6 +31,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   isListening = false;
   voiceEnabled = true;
   speechSupported = false;
+  showPhoneInput = false;
+  phoneInput = '';
   voiceStatus = '';
   liveTranscript = '';
 
@@ -41,6 +44,14 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   private nextMessageCanal: 'texto' | 'voz' = 'texto';
 
+  private retellClient = new RetellWebClient();
+
+  isRetellActive = false;
+  isRetellConnecting = false;
+  isMaraSpeaking = false;
+  isMaraListening = false;
+  retellStatus = 'Lista para hablar';
+
   messages: ChatMessage[] = [];
 
   constructor(private chatbotService: ChatbotService) {}
@@ -48,6 +59,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   ngOnInit(): void {
     this.loadMessages();
     this.initSpeechRecognition();
+    this.initRetellEvents();
+
+    window.speechSynthesis.getVoices();
+
+    window.speechSynthesis.onvoiceschanged = () => {
+      window.speechSynthesis.getVoices();
+    };
   }
 
   ngAfterViewChecked(): void {
@@ -302,13 +320,66 @@ stopListeningAndSend(): void {
 
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'es-PE';
-    utterance.rate = 0.95;
-    utterance.pitch = 1;
-    utterance.volume = 1;
+    const hablar = () => {
 
-    window.speechSynthesis.speak(utterance);
+    const textoLimpio = text
+      .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+      .replace(/[✅❌⚠️📅📞🚗🛠️👤🎉😊😎🔥💬📍⏰☎️]/gu, '')
+      .replace(/\*\*/g, '')
+      .replace(/__/g, '')
+      .replace(/`/g, '')
+      .replace(/\n+/g, '. ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+      const voices = window.speechSynthesis.getVoices();
+
+      const vozLatina =
+        voices.find(v => v.lang === 'es-CO') ||
+        voices.find(v => v.name.toLowerCase().includes('colombia')) ||
+        voices.find(v => v.lang === 'es-MX') ||
+        voices.find(v => v.lang === 'es-US') ||
+        voices.find(v => v.lang === 'es-ES') ||
+        voices.find(v => v.lang.startsWith('es'));
+
+      const utterance = new SpeechSynthesisUtterance(textoLimpio);
+
+      if (vozLatina) {
+        utterance.voice = vozLatina;
+        utterance.lang = vozLatina.lang;
+      } else {
+        utterance.lang = 'es-CO';
+      }
+
+      utterance.rate = 0.9;
+      utterance.pitch = 1.08;
+      utterance.volume = 1;
+
+      utterance.onstart = () => {
+        this.isMaraSpeaking = true;
+        this.retellStatus = 'Mara está respondiendo...';
+      };
+
+      utterance.onend = () => {
+        this.isMaraSpeaking = false;
+        this.retellStatus = 'Lista para hablar';
+      };
+
+      utterance.onerror = () => {
+        this.isMaraSpeaking = false;
+        this.retellStatus = 'Lista para hablar';
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    const voices = window.speechSynthesis.getVoices();
+
+    if (voices.length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => hablar();
+    } else {
+      hablar();
+    }
   }
 
   toggleVoice(): void {
@@ -316,6 +387,8 @@ stopListeningAndSend(): void {
 
     if (!this.voiceEnabled) {
       window.speechSynthesis.cancel();
+      this.isMaraSpeaking = false;
+      this.retellStatus = 'Lista para hablar';
     }
   }
 
@@ -333,13 +406,30 @@ stopListeningAndSend(): void {
     this.isLoading = true;
     this.addMessage(text, 'user');
 
+    if (this.isRetellActive) {
+      this.chatbotService.sendMessage(text, 'voz').subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.voiceStatus = '';
+        },
+        error: () => {
+          this.isLoading = false;
+          this.voiceStatus = '';
+        }
+      });
+
+      return;
+    }
+
     const canalMensaje = this.nextMessageCanal;
     this.nextMessageCanal = 'texto';
 
 this.chatbotService.sendMessage(text, canalMensaje).subscribe({
       next: (response) => {
         const respuesta = response.reply || 'Sin respuesta del servidor.';
+        this.detectSpecialInputRequest(respuesta);
         this.addMessage(respuesta, 'bot');
+        
         this.speakResponse(respuesta);
 
         if (
@@ -372,6 +462,147 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
   cancelarAgendamiento(): void {
     if (this.isLoading) return;
     this.userInput = 'cancelar';
+    this.sendMessage();
+  }
+
+  private initRetellEvents(): void {
+    this.retellClient.on('call_started', () => {
+      this.isRetellActive = true;
+      console.timeEnd('RETELL_CONNECT');
+      this.isRetellConnecting = false;
+      this.isMaraSpeaking = false;
+      this.isMaraListening = false;
+      this.retellStatus = 'Preparando escucha...';
+
+      setTimeout(() => {
+        if (this.isRetellActive) {
+          this.isMaraListening = true;
+          this.retellStatus = 'Mara está escuchando...';
+        }
+      }, 1000);
+    });
+
+    this.retellClient.on('call_ended', () => {
+      this.isRetellActive = false;
+      this.isRetellConnecting = false;
+      this.isMaraSpeaking = false;
+      this.isMaraListening = false;
+      this.retellStatus = 'Lista para hablar';
+    });
+
+    this.retellClient.on('agent_start_talking', () => {
+      this.isMaraSpeaking = true;
+      this.isMaraListening = false;
+      this.retellStatus = 'Mara está respondiendo...';
+    });
+
+    this.retellClient.on('agent_stop_talking', () => {
+      this.isMaraSpeaking = false;
+      this.isMaraListening = true;
+      this.retellStatus = 'Mara está escuchando...';
+    });
+
+    this.retellClient.on('error', (error: any) => {
+      console.error('Error Retell:', error);
+      this.isRetellActive = false;
+      this.isRetellConnecting = false;
+      this.isMaraSpeaking = false;
+      this.isMaraListening = false;
+      this.retellStatus = 'Error al conectar con Mara';
+    });
+  }
+
+  async startRetellCall(): Promise<void> {
+    if (this.isRetellActive || this.isRetellConnecting) return;
+
+    console.time('RETELL_CONNECT');
+
+    this.isRetellConnecting = true;
+    this.retellStatus = 'Preparando micrófono...';
+
+    window.speechSynthesis.cancel();
+
+    try {
+      await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+
+      this.retellStatus = 'Conectando con Mara...';
+
+      this.chatbotService.createRetellWebCall().subscribe({
+        next: async (response) => {
+          try {
+            this.retellStatus = 'Iniciando llamada...';
+
+            await this.retellClient.startCall({
+              accessToken: response.access_token
+            });
+          } catch (error) {
+            console.error('No se pudo iniciar llamada Retell:', error);
+            console.timeEnd('RETELL_CONNECT');
+            this.isRetellConnecting = false;
+            this.retellStatus = 'No se pudo iniciar la llamada';
+          }
+        },
+        error: (error) => {
+          console.error('Error creando llamada Retell:', error);
+          console.timeEnd('RETELL_CONNECT');
+          this.isRetellConnecting = false;
+          this.retellStatus = 'No se pudo conectar con Mara';
+        }
+      });
+
+    } catch (error) {
+      console.error('No se pudo acceder al micrófono:', error);
+      console.timeEnd('RETELL_CONNECT');
+      this.isRetellConnecting = false;
+      this.retellStatus = 'Permiso de micrófono denegado';
+    }
+  }
+
+  stopRetellCall(): void {
+    if (!this.isRetellActive && !this.isRetellConnecting) return;
+
+    this.retellClient.stopCall();
+
+    this.isRetellActive = false;
+    this.isRetellConnecting = false;
+    this.isMaraSpeaking = false;
+    this.isMaraListening = false;
+    this.retellStatus = 'Lista para hablar';
+  }
+
+    private detectSpecialInputRequest(text: string): void {
+      if (!this.isRetellActive) {
+        this.showPhoneInput = false;
+        return;
+      }
+
+      const msg = text.toLowerCase();
+
+      this.showPhoneInput =
+        msg.includes('teléfono') ||
+        msg.includes('telefono') ||
+        msg.includes('número de teléfono') ||
+        msg.includes('numero de telefono') ||
+        msg.includes('celular');
+    }
+
+  sendPhoneFromPanel(): void {
+    const phone = this.phoneInput.trim();
+
+    if (!/^9\d{8}$/.test(phone)) {
+      this.addMessage('El teléfono debe tener 9 dígitos y empezar con 9.', 'bot', true);
+      return;
+    }
+
+    this.userInput = `Mi teléfono es ${phone}`;
+    this.phoneInput = '';
+    this.showPhoneInput = false;
     this.sendMessage();
   }
 }

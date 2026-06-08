@@ -612,3 +612,452 @@ textarea::placeholder { color: var(--muted); }
   font-size: 11px;
   color: rgba(240,237,232,0.45);
 }
+
+.chat-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  height: calc(100vh - 78px);
+  padding: 22px 28px;
+  box-sizing: border-box;
+}
+
+.chat-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mara-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mara-card {
+  width: 100%;
+  max-width: 340px;
+  border: 1px solid rgba(239, 48, 34, 0.35);
+  border-radius: 28px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top, rgba(239, 48, 34, 0.22), transparent 40%),
+    linear-gradient(180deg, #171717, #090909);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  color: #fff;
+  transition: 0.25s ease;
+}
+
+.mara-panel.speaking .mara-card {
+  border-color: rgba(239, 48, 34, 0.95);
+  box-shadow: 0 0 40px rgba(239, 48, 34, 0.35);
+}
+
+.mara-avatar-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #111;
+}
+
+.mara-avatar {
+  width: 100%;
+  display: block;
+  border-radius: 24px;
+}
+
+.mara-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  box-shadow: inset 0 0 40px rgba(239, 48, 34, 0.35);
+  animation: maraPulse 1.4s infinite;
+}
+
+.mara-mouth {
+  position: absolute;
+  left: 50%;
+  top: 42.8%;
+  transform: translateX(-50%);
+  width: 34px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(80, 10, 10, 0.65);
+  animation: mouthTalk 0.18s infinite alternate;
+  filter: blur(0.2px);
+}
+
+.mara-info h2 {
+  margin: 16px 0 4px;
+  font-size: 28px;
+}
+
+.mara-info p {
+  margin: 0;
+  color: #aaa;
+  font-weight: 600;
+}
+
+.mara-info span {
+  display: block;
+  margin-top: 8px;
+  color: #ffb3aa;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.mara-waves {
+  height: 44px;
+  margin: 14px 0;
+  display: flex;
+  gap: 7px;
+  justify-content: center;
+  align-items: center;
+}
+
+.mara-waves span {
+  width: 6px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ef3022;
+  animation: waveMove 0.75s infinite ease-in-out;
+}
+
+.mara-waves span:nth-child(2) { animation-delay: 0.1s; }
+.mara-waves span:nth-child(3) { animation-delay: 0.2s; }
+.mara-waves span:nth-child(4) { animation-delay: 0.3s; }
+.mara-waves span:nth-child(5) { animation-delay: 0.4s; }
+
+.mara-call-btn {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #ef3022, #9f160d);
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.mara-call-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(239, 48, 34, 0.28);
+}
+
+.mara-call-btn.active {
+  background: linear-gradient(135deg, #3a3a3a, #151515);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mara-call-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@keyframes maraPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+@keyframes mouthTalk {
+  from {
+    height: 5px;
+    width: 26px;
+  }
+  to {
+    height: 15px;
+    width: 38px;
+  }
+}
+
+@keyframes waveMove {
+  0%, 100% {
+    height: 10px;
+    opacity: 0.45;
+  }
+  50% {
+    height: 34px;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1050px) {
+  .chat-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    padding: 16px;
+  }
+
+  .mara-panel {
+    order: -1;
+  }
+
+  .mara-card {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mara-card {
+    max-width: 100%;
+    border-radius: 22px;
+    padding: 14px;
+  }
+
+  .mara-info h2 {
+    font-size: 24px;
+  }
+
+  .mara-mouth {
+    top: 42.8%;
+  }
+}
+
+.wrapper {
+  height: 100vh !important;
+  overflow: hidden !important;
+}
+
+.chat-layout {
+  height: calc(100vh - 78px) !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 380px !important;
+  gap: 24px !important;
+  padding: 20px 28px !important;
+  box-sizing: border-box !important;
+}
+
+.chat-main {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.messages {
+  flex: 1 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding-bottom: 20px !important;
+}
+
+.mara-panel {
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: sticky !important;
+  top: 90px !important;
+}
+
+.mara-card {
+  width: 100% !important;
+  max-width: 360px !important;
+  border: 1px solid rgba(239, 48, 34, 0.45) !important;
+  border-radius: 28px !important;
+  padding: 18px !important;
+  background: linear-gradient(180deg, #171717, #080808) !important;
+  box-shadow: 0 24px 60px rgba(0,0,0,.5) !important;
+  text-align: center !important;
+}
+
+.mara-avatar-box {
+  position: relative !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+.mara-avatar {
+  width: 100% !important;
+  display: block !important;
+  border-radius: 24px !important;
+  animation: maraIdle 4s ease-in-out infinite;
+}
+
+.mara-panel.speaking .mara-avatar {
+  animation: maraTalking 0.9s ease-in-out infinite;
+}
+
+.mara-mouth {
+  position: absolute !important;
+  left: 50% !important;
+  top: 41.7% !important;
+  transform: translateX(-50%) !important;
+  width: 30px !important;
+  height: 7px !important;
+  background: rgba(80, 5, 8, 0.75) !important;
+  border-radius: 50% !important;
+  animation: mouthTalk 0.16s infinite alternate !important;
+}
+
+@keyframes maraIdle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.01); }
+}
+
+@keyframes maraTalking {
+  0%, 100% { transform: translateY(0) scale(1.01); }
+  50% { transform: translateY(-4px) scale(1.025); }
+}
+
+@keyframes mouthTalk {
+  from { height: 4px; width: 24px; }
+  to { height: 14px; width: 38px; }
+}
+
+@media (max-width: 1050px) {
+  .chat-layout {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+  }
+
+  .wrapper {
+    overflow-y: auto !important;
+  }
+
+  .mara-panel {
+    position: relative !important;
+    top: 0 !important;
+    order: -1 !important;
+    height: auto !important;
+  }
+
+  .mara-card {
+    max-width: 430px !important;
+  }
+}
+
+.mara-panel.connected .mara-card {
+  border-color: rgba(34, 197, 94, 0.55) !important;
+}
+
+.mara-panel.listening .mara-card {
+  box-shadow: 0 0 35px rgba(34, 197, 94, 0.22) !important;
+}
+
+.mara-panel.speaking .mara-card {
+  border-color: rgba(239, 48, 34, 0.95) !important;
+  box-shadow: 0 0 45px rgba(239, 48, 34, 0.35) !important;
+}
+
+.mara-panel.listening .mara-avatar {
+  animation: maraListen 2.4s ease-in-out infinite !important;
+}
+
+.mara-panel.speaking .mara-avatar {
+  animation: maraTalkBody 0.85s ease-in-out infinite !important;
+}
+
+@keyframes maraListen {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+  }
+  50% {
+    transform: scale(1.012) translateY(-2px);
+  }
+}
+
+@keyframes maraTalkBody {
+  0%, 100% {
+    transform: scale(1.012) translateY(0);
+  }
+  50% {
+    transform: scale(1.03) translateY(-4px);
+  }
+}
+
+.special-input-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 24px 12px;
+}
+
+.special-input-card {
+  width: 100%;
+  max-width: 760px;
+  background: rgba(224, 49, 30, 0.1);
+  border: 1px solid rgba(224, 49, 30, 0.3);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.special-input-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(224, 49, 30, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.special-input-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.special-input-content strong {
+  display: block;
+  color: var(--blanco);
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.special-input-content p {
+  margin: 0 0 10px;
+  color: var(--muted2);
+  font-size: 12px;
+}
+
+.special-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.special-input-row input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--surface2);
+  color: var(--blanco);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+}
+
+.special-input-row button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--rojo);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .special-input-container {
+    padding: 0 12px 10px;
+  }
+
+  .special-input-card {
+    flex-direction: column;
+  }
+
+  .special-input-row {
+    flex-direction: column;
+  }
+
+  .special-input-row button {
+    width: 100%;
+  }
+}
