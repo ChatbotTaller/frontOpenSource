@@ -3,6 +3,7 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@ang
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../core/services/chatbot.service';
 import { RetellWebClient } from 'retell-client-js-sdk';
+import { Room, RoomEvent, Track, createLocalAudioTrack } from 'livekit-client';
 
 interface ChatMessage {
   text: string;
@@ -21,6 +22,7 @@ interface ChatMessage {
 export class ChatComponent implements OnInit, AfterViewChecked {
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
+  @ViewChild('maraVideo') maraVideoRef!: ElementRef<HTMLElement>;
 
   userInput = '';
   isLoading = false;
@@ -51,6 +53,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   isMaraSpeaking = false;
   isMaraListening = false;
   retellStatus = 'Lista para hablar';
+
+  private livekitRoom: Room | null = null;
+
+  isMaraAvatarActive = false;
+  isMaraAvatarConnecting = false;
 
   messages: ChatMessage[] = [];
 
@@ -429,8 +436,10 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
         const respuesta = response.reply || 'Sin respuesta del servidor.';
         this.detectSpecialInputRequest(respuesta);
         this.addMessage(respuesta, 'bot');
-        
-        this.speakResponse(respuesta);
+
+        if (canalMensaje === 'voz') {
+          this.speakResponse(respuesta);
+        }
 
         if (
           respuesta.includes('Tu cita fue registrada correctamente') ||
@@ -604,5 +613,96 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.phoneInput = '';
     this.showPhoneInput = false;
     this.sendMessage();
+  }
+
+    async startMaraAvatarCall(): Promise<void> {
+    if (this.isMaraAvatarActive || this.isMaraAvatarConnecting) return;
+
+    this.isMaraAvatarConnecting = true;
+    this.retellStatus = 'Conectando con Mara IA...';
+
+    window.speechSynthesis.cancel();
+
+    const roomName = `mara-room-${this.getSessionId()}`;
+    const participantName = `cliente-${this.getSessionId()}`;
+
+    this.chatbotService.createLivekitToken(roomName, participantName).subscribe({
+      next: async (data) => {
+        try {
+          this.livekitRoom = new Room({
+            adaptiveStream: true,
+            dynacast: true
+          });
+
+          this.livekitRoom.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+            if (track.kind === Track.Kind.Video) {
+              const videoElement = track.attach() as HTMLVideoElement;
+              videoElement.autoplay = true;
+              videoElement.playsInline = true;
+              videoElement.muted = false;
+
+              const container = this.maraVideoRef?.nativeElement;
+
+              if (container) {
+                container.innerHTML = '';
+                container.appendChild(videoElement);
+              }
+            }
+
+            if (track.kind === Track.Kind.Audio) {
+              const audioElement = track.attach() as HTMLAudioElement;
+              audioElement.autoplay = true;
+              document.body.appendChild(audioElement);
+            }
+          });
+
+          this.livekitRoom.on(RoomEvent.Disconnected, () => {
+            this.isMaraAvatarActive = false;
+            this.isMaraAvatarConnecting = false;
+            this.isMaraSpeaking = false;
+            this.isMaraListening = false;
+            this.retellStatus = 'Lista para hablar';
+          });
+
+          await this.livekitRoom.connect(data.url, data.token);
+
+          const audioTrack = await createLocalAudioTrack({
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+          });
+
+          await this.livekitRoom.localParticipant.publishTrack(audioTrack);
+
+          this.isMaraAvatarActive = true;
+          this.isMaraAvatarConnecting = false;
+          this.isMaraListening = true;
+          this.retellStatus = 'Mara IA está escuchando...';
+
+        } catch (error) {
+          console.error('Error conectando LiveKit:', error);
+          this.isMaraAvatarConnecting = false;
+          this.retellStatus = 'No se pudo conectar con Mara IA';
+        }
+      },
+      error: (error) => {
+        console.error('Error obteniendo token LiveKit:', error);
+        this.isMaraAvatarConnecting = false;
+        this.retellStatus = 'No se pudo generar token de Mara IA';
+      }
+    });
+  }
+
+    stopMaraAvatarCall(): void {
+    if (this.livekitRoom) {
+      this.livekitRoom.disconnect();
+      this.livekitRoom = null;
+    }
+
+    this.isMaraAvatarActive = false;
+    this.isMaraAvatarConnecting = false;
+    this.isMaraSpeaking = false;
+    this.isMaraListening = false;
+    this.retellStatus = 'Lista para hablar';
   }
 }

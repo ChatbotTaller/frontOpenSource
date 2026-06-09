@@ -178,17 +178,32 @@
       class="mara-panel"
       [class.speaking]="isMaraSpeaking"
       [class.listening]="isMaraListening"
-      [class.connected]="isRetellActive"
+      [class.connected]="isMaraAvatarActive"
     >
       <div class="mara-card">
 
-        <div class="mara-avatar-box">
-          <img src="/mara.png" alt="Mara asistente virtual" class="mara-avatar" />
+      <div class="mara-avatar-box">
 
-          <div class="mara-glow" *ngIf="isRetellActive || isRetellConnecting"></div>
+        <img
+          src="/mara-simli.png"
+          alt="Mara asistente virtual"
+          class="mara-avatar-base"
+        />
 
-          <div class="mara-mouth" *ngIf="isMaraSpeaking"></div>
+        <div
+          #maraVideo
+          class="mara-video-overlay">
         </div>
+
+        <div
+          class="mara-glow"
+          *ngIf="isMaraAvatarActive || isMaraAvatarConnecting">
+        </div>
+
+        <div class="mara-mouth" 
+        *ngIf="isMaraSpeaking && !isMaraAvatarActive"></div>
+
+      </div>
 
         <div class="mara-info">
           <h2>Mara</h2>
@@ -196,17 +211,17 @@
           <span>{{ retellStatus }}</span>
         </div>
 
-        <div class="mara-waves" *ngIf="isMaraSpeaking || isMaraListening || isRetellConnecting">
+        <div class="mara-waves" *ngIf="!isMaraAvatarActive && (isMaraSpeaking || isMaraListening || isMaraAvatarConnecting)">
           <span></span><span></span><span></span><span></span><span></span>
         </div>
 
         <button
           class="mara-call-btn"
-          [class.active]="isRetellActive"
-          [disabled]="isRetellConnecting"
-          (click)="isRetellActive ? stopRetellCall() : startRetellCall()"
+          [class.active]="isMaraAvatarActive"
+          [disabled]="isMaraAvatarConnecting"
+          (click)="isMaraAvatarActive ? stopMaraAvatarCall() : startMaraAvatarCall()"
         >
-          {{ isRetellConnecting ? 'Conectando...' : (isRetellActive ? 'Finalizar llamada' : 'Hablar con Mara Pro') }}
+          {{ isMaraAvatarConnecting ? 'Conectando...' : (isMaraAvatarActive ? 'Finalizar llamada' : 'Hablar con Mara IA') }}
         </button>
 
       </div>

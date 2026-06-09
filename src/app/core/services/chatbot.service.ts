@@ -56,4 +56,11 @@ export class ChatbotService {
 
     return sessionId;
   }
+
+  createLivekitToken(roomName: string, participantName: string) {
+    return this.http.post<any>(`${this.backendBaseUrl}/livekit/token`, {
+      roomName,
+      participantName
+    });
+  }
 }
