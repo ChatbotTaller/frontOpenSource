@@ -8,11 +8,22 @@ interface ChatbotResponse {
   response_time_ms?: number;
 }
 
+interface RetellWebCallResponse {
+  call_id: string;
+  call_type: string;
+  agent_id: string;
+  agent_version: number;
+  agent_name: string;
+  call_status: string;
+  access_token: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ChatbotService {
-  private backendUrl = 'http://localhost:3000/webhook';
+  private backendBaseUrl = 'http://localhost:3000';
+  private backendUrl = `${this.backendBaseUrl}/webhook`;
 
   constructor(private http: HttpClient) {}
 
@@ -26,6 +37,15 @@ export class ChatbotService {
     });
   }
 
+  createRetellWebCall(): Observable<any> {
+    return this.http.post<any>(
+      `${this.backendBaseUrl}/retell/create-web-call`,
+      {
+        session_id: this.getSessionId()
+      }
+    );
+  }
+
   private getSessionId(): string {
     let sessionId = localStorage.getItem('chat_session_id');
 
@@ -35,5 +55,12 @@ export class ChatbotService {
     }
 
     return sessionId;
+  }
+
+  createLivekitToken(roomName: string, participantName: string) {
+    return this.http.post<any>(`${this.backendBaseUrl}/livekit/token`, {
+      roomName,
+      participantName
+    });
   }
 }

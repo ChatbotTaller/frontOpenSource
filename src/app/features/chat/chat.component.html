@@ -38,7 +38,7 @@
 
   <div class="chat-layout">
 
-    <div class="chat-main">
+    <main class="chat-main">
 
       <div class="messages" #messagesContainer>
 
@@ -94,15 +94,35 @@
         </button>
       </div>
 
+      <div class="special-input-container" *ngIf="isRetellActive && showPhoneInput">
+      <div class="special-input-card">
+        <div class="special-input-icon">📞</div>
+
+        <div class="special-input-content">
+          <strong>Dato exacto para Mara</strong>
+          <p>Si Mara te pide teléfono, escríbelo aquí para evitar errores de voz.</p>
+
+          <div class="special-input-row">
+            <input
+              type="tel"
+              maxlength="9"
+              placeholder="Ej: 987654321"
+              [(ngModel)]="phoneInput"
+              (keydown.enter)="sendPhoneFromPanel()"
+            />
+
+            <button (click)="sendPhoneFromPanel()">
+              Enviar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
       <div class="voice-status-container" *ngIf="voiceStatus || liveTranscript">
         <div class="voice-status-card">
           <div class="voice-visualizer" *ngIf="isListening">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
           </div>
 
           <div class="voice-status-content">
@@ -152,32 +172,57 @@
         </div>
       </div>
 
-    </div>
+    </main>
 
-    <aside class="mara-panel" [class.speaking]="isBotSpeaking">
+    <aside
+      class="mara-panel"
+      [class.speaking]="isMaraSpeaking"
+      [class.listening]="isMaraListening"
+      [class.connected]="isMaraAvatarActive"
+    >
       <div class="mara-card">
 
-        <div class="mara-avatar-wrap">
-          <img src="/mara.png" alt="Mara asistente virtual" class="mara-avatar" />
-          <div class="mara-mouth" *ngIf="isBotSpeaking"></div>
+      <div class="mara-avatar-box">
+
+        <img
+          src="/mara-simli.png"
+          alt="Mara asistente virtual"
+          class="mara-avatar-base"
+        />
+
+        <div
+          #maraVideo
+          class="mara-video-overlay">
         </div>
+
+        <div
+          class="mara-glow"
+          *ngIf="isMaraAvatarActive || isMaraAvatarConnecting">
+        </div>
+
+        <div class="mara-mouth" 
+        *ngIf="isMaraSpeaking && !isMaraAvatarActive"></div>
+
+      </div>
 
         <div class="mara-info">
-          <h3>Mara</h3>
+          <h2>Mara</h2>
           <p>Asistente virtual Reyes Polo</p>
-          <span>
-            {{ isBotSpeaking ? 'Respondiendo por voz...' : 'Lista para ayudarte' }}
-          </span>
+          <span>{{ retellStatus }}</span>
         </div>
 
-        <div class="mara-waves" *ngIf="isBotSpeaking">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
+        <div class="mara-waves" *ngIf="!isMaraAvatarActive && (isMaraSpeaking || isMaraListening || isMaraAvatarConnecting)">
+          <span></span><span></span><span></span><span></span><span></span>
         </div>
+
+        <button
+          class="mara-call-btn"
+          [class.active]="isMaraAvatarActive"
+          [disabled]="isMaraAvatarConnecting"
+          (click)="isMaraAvatarActive ? stopMaraAvatarCall() : startMaraAvatarCall()"
+        >
+          {{ isMaraAvatarConnecting ? 'Conectando...' : (isMaraAvatarActive ? 'Finalizar llamada' : 'Hablar con Mara IA') }}
+        </button>
 
       </div>
     </aside>
