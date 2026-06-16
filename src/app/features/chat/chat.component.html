@@ -5,7 +5,7 @@
       <img src="/ReyesPolo.jpeg" alt="Reyes Polo" class="logo-header-icon" />
       <div class="header-info">
         <h1>Taller Reyes Polo</h1>
-        <p>Asistente IA · Trujillo, La Libertad</p>
+        <p>Cliente: {{ nombreCliente }} · Trujillo, La Libertad</p>
       </div>
     </div>
 
@@ -33,12 +33,21 @@
       >
         <img src="/IconoWhatsapp.png" alt="WhatsApp" class="whatsapp-btn-icon" />
       </a>
+
+      <button class="back-client-btn" (click)="volverSelector()">
+        ← Cambiar modo
+      </button>
+
+      <button class="logout-client-btn" (click)="cerrarSesionCliente()">
+        Cerrar sesión
+      </button>
+
     </div>
   </div>
 
-  <div class="chat-layout">
+  <div class="chat-layout" [class.voice-only]="modoChat === 'voz'">
 
-    <main class="chat-main">
+    <main class="chat-main" *ngIf="modoChat === 'texto'">
 
       <div class="messages" #messagesContainer>
 
@@ -175,6 +184,7 @@
     </main>
 
     <aside
+      *ngIf="modoChat === 'voz'"
       class="mara-panel"
       [class.speaking]="isMaraSpeaking"
       [class.listening]="isMaraListening"

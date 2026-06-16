@@ -47,11 +47,10 @@ export class ChatbotService {
   }
 
   private getSessionId(): string {
-    let sessionId = localStorage.getItem('chat_session_id');
+    const sessionId = localStorage.getItem('chat_session_id');
 
     if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem('chat_session_id', sessionId);
+      throw new Error('Cliente no autenticado');
     }
 
     return sessionId;

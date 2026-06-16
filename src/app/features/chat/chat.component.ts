@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../core/services/chatbot.service';
 import { RetellWebClient } from 'retell-client-js-sdk';
 import { Room, RoomEvent, Track, createLocalAudioTrack } from 'livekit-client';
+import { Router } from '@angular/router';
 
 interface ChatMessage {
   text: string;
@@ -37,6 +38,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   phoneInput = '';
   voiceStatus = '';
   liveTranscript = '';
+  nombreCliente = '';
 
   private recognition: any = null;
   private finalTranscript = '';
@@ -45,6 +47,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   private pressStartTime = 0;
 
   private nextMessageCanal: 'texto' | 'voz' = 'texto';
+  modoChat: 'texto' | 'voz' = 'texto';
 
   private retellClient = new RetellWebClient();
 
@@ -61,12 +64,17 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
   messages: ChatMessage[] = [];
 
-  constructor(private chatbotService: ChatbotService) {}
+  constructor(
+    private chatbotService: ChatbotService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadMessages();
     this.initSpeechRecognition();
     this.initRetellEvents();
+    this.modoChat = (localStorage.getItem('chat_mode') as 'texto' | 'voz') || 'texto';
+    this.nombreCliente = localStorage.getItem('nombre_cliente') || 'Cliente';
 
     window.speechSynthesis.getVoices();
 
@@ -96,11 +104,12 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   private getSessionId(): string {
-    let sessionId = localStorage.getItem('chat_session_id');
+    const sessionId = localStorage.getItem('chat_session_id');
+
     if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem('chat_session_id', sessionId);
+      throw new Error('Cliente no autenticado');
     }
+
     return sessionId;
   }
 
@@ -704,5 +713,22 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.isMaraSpeaking = false;
     this.isMaraListening = false;
     this.retellStatus = 'Lista para hablar';
+  }
+
+  volverSelector(): void {
+    this.router.navigate(['/seleccionar-chat']);
+  }
+
+  cerrarSesionCliente(): void {
+    this.stopMaraAvatarCall();
+
+    localStorage.removeItem('usuario_dni');
+    localStorage.removeItem('nombre_cliente');
+    localStorage.removeItem('chat_session_id');
+    localStorage.removeItem('chat_mode');
+
+    this.messages = [];
+
+    this.router.navigate(['/dni-login']);
   }
 }

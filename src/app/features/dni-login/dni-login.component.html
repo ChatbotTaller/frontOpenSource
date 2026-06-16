@@ -1,0 +1,32 @@
+<div class="dni-container">
+
+  <div class="card">
+
+    <h1>Taller Reyes Polo</h1>
+
+    <p class="subtitle">
+      Identifícate con tu DNI
+    </p>
+
+    <input
+      type="text"
+      maxlength="8"
+      [(ngModel)]="dni"
+      placeholder="Ingrese su DNI"
+    />
+
+    <button
+      (click)="ingresar()"
+      [disabled]="cargando">
+
+      {{ cargando ? 'Validando...' : 'Continuar' }}
+
+    </button>
+
+    <p class="error" *ngIf="error">
+      {{ error }}
+    </p>
+
+  </div>
+
+</div>
