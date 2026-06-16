@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class AdminService {
 
-  private apiUrl = 'https://backendopensource-production.up.railway.app';
+  private apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
@@ -58,4 +58,10 @@ export class AdminService {
     headers: this.getHeaders()
   });
 }
+
+  getMetricasVoz(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/metricas/voz`, {
+      headers: this.getHeaders()
+    });
+  }
 }

@@ -21,13 +21,23 @@ export class AdminComponent implements OnInit {
   loading = true;
 
   chartCitas: any;
+  chartVozTexto: any;
   filtroEstado = '';
   busqueda = '';
+
+    metricasVoz: any = {
+    total_voz: 0,
+    total_texto: 0,
+    stt_exito_porcentaje: 0,
+    tts_exito_porcentaje: 0,
+    tiempo_promedio_voz_ms: 0
+  };
 
   constructor(private adminService: AdminService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadCitas();
+    this.loadMetricasVoz();
   }
 
   loadCitas(): void {
@@ -89,6 +99,55 @@ export class AdminComponent implements OnInit {
             }
           }
         }
+      }
+    });
+  }
+
+    crearGraficoVozTexto(): void {
+    const canvas = document.getElementById('vozTextoChart') as HTMLCanvasElement;
+
+    if (!canvas) return;
+
+    if (this.chartVozTexto) {
+      this.chartVozTexto.destroy();
+    }
+
+    this.chartVozTexto = new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Consultas por voz', 'Consultas por texto'],
+        datasets: [
+          {
+            data: [
+              this.metricasVoz.total_voz,
+              this.metricasVoz.total_texto
+            ]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
+    });
+  }
+
+  loadMetricasVoz(): void {
+    this.adminService.getMetricasVoz().subscribe({
+      next: (data) => {
+        this.metricasVoz = data;
+
+        setTimeout(() => {
+          this.crearGraficoVozTexto();
+        }, 100);
+      },
+      error: (error) => {
+        console.error('Error cargando métricas de voz:', error);
       }
     });
   }

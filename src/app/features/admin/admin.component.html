@@ -51,6 +51,47 @@
       </div>
     </div>
 
+      <p class="section-title">Métricas del módulo de voz</p>
+
+  <div class="stats-grid voice-metrics-grid">
+    <div class="stat-card voice-card">
+      <span>Consultas por voz</span>
+      <strong>{{ metricasVoz.total_voz }}</strong>
+      <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+    </div>
+
+    <div class="stat-card voice-card">
+      <span>Consultas por texto</span>
+      <strong>{{ metricasVoz.total_texto }}</strong>
+      <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+    </div>
+
+    <div class="stat-card voice-card">
+      <span>STT exitoso</span>
+      <strong>{{ metricasVoz.stt_exito_porcentaje }}%</strong>
+      <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+    </div>
+
+    <div class="stat-card voice-card">
+      <span>TTS exitoso</span>
+      <strong>{{ metricasVoz.tts_exito_porcentaje }}%</strong>
+      <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+    </div>
+
+    <div class="stat-card voice-card">
+      <span>Tiempo prom. voz</span>
+      <strong>{{ metricasVoz.tiempo_promedio_voz_ms }} <small>ms</small></strong>
+      <div class="stat-bar"><div class="stat-bar-fill"></div></div>
+    </div>
+  </div>
+
+    <div class="charts-grid voice-charts-grid">
+    <div class="chart-card">
+      <h3>Distribución de interacciones por canal</h3>
+      <canvas id="vozTextoChart"></canvas>
+    </div>
+  </div>
+
     <!-- CHART -->
     <div class="charts-grid">
       <div class="chart-card">

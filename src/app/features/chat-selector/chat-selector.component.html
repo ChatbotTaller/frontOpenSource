@@ -1,0 +1,27 @@
+<div class="selector-container">
+
+  <div class="selector-card">
+
+    <h1>Bienvenido</h1>
+
+    <h2>{{ nombre }}</h2>
+
+    <p>
+      ¿Cómo deseas comunicarte con Mara?
+    </p>
+
+    <button class="mode-btn" (click)="irATexto()">
+       Chat de Texto
+    </button>
+
+    <button class="mode-btn voice" (click)="irAVoz()">
+       Chat de Voz
+    </button>
+    
+    <button class="logout-btn" (click)="cerrarSesion()">
+      Cerrar sesión
+    </button>
+
+  </div>
+
+</div>

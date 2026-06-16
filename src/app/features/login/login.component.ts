@@ -36,7 +36,7 @@ export class LoginComponent implements OnInit {
 
     this.error = '';
 
-    this.http.post<any>('https://backendopensource-production.up.railway.app/auth/login', {
+    this.http.post<any>('http://localhost:3000/auth/login', {
       usuario: this.usuario,
       password: this.password
     }).subscribe({

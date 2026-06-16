@@ -5,18 +5,16 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class MetricasService {
+export class DniService {
 
   private apiUrl = 'http://localhost:3000';
 
   constructor(private http: HttpClient) {}
 
-  getMetricas(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/metricas`);
+  verificarDni(dni: string): Observable<any> {
+    return this.http.post(
+      `${this.apiUrl}/dni/verificar`,
+      { dni }
+    );
   }
-
-  getResumen(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/metricas/resumen`);
-  }
-
 }
