@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class DniService {
 
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'https://backendopensource-production.up.railway.app';
 
   constructor(private http: HttpClient) {}
 
