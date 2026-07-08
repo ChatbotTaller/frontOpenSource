@@ -25,40 +25,46 @@ export class DniLoginComponent {
 
   ingresar(): void {
 
-    this.error = '';
+  this.error = '';
 
-    if (!/^\d{8}$/.test(this.dni)) {
-      this.error = 'Ingrese un DNI válido de 8 dígitos.';
-      return;
-    }
+  if (!/^\d{8}$/.test(this.dni)) {
+    this.error = 'Ingrese un DNI válido de 8 dígitos.';
+    return;
+  }
 
-    this.cargando = true;
+  this.cargando = true;
 
-    this.dniService.verificarDni(this.dni).subscribe({
-      next: (resp: any) => {
+  this.dniService.verificarDni(this.dni).subscribe({
+    next: (resp: any) => {
 
-        localStorage.setItem(
-          'usuario_dni',
-          JSON.stringify(resp.usuario)
-        );
+      if (!resp || resp.success !== true || !resp.usuario || !resp.usuario.nombre) {
+        this.error = resp?.message || 'No se pudo validar el DNI.';
+        this.cargando = false;
+        return;
+      }
 
-        localStorage.setItem(
-          'chat_session_id',
-          resp.session_id
-        );
+      localStorage.setItem(
+        'usuario_dni',
+        JSON.stringify(resp.usuario)
+      );
 
-        localStorage.setItem(
+      localStorage.setItem(
+        'chat_session_id',
+        resp.session_id
+      );
+
+      localStorage.setItem(
         'nombre_cliente',
         resp.usuario.nombre
-        );
+      );
 
-        this.router.navigate(['/seleccionar-chat']);
-      },
+      this.router.navigate(['/seleccionar-chat']);
+    },
 
-      error: () => {
-        this.error = 'No se pudo validar el DNI.';
-        this.cargando = false;
-      }
-    });
-  }
+    error: () => {
+      this.error = 'No se pudo validar el DNI.';
+      this.cargando = false;
+    }
+  });
+}
 }

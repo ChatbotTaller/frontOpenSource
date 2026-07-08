@@ -10,9 +10,9 @@
         📊 Métricas IA
       </button>
 
-      <a class="btn btn-blue" href="https://calendar.google.com/calendar/u/0/r" target="_blank">
+      <!-- <a class="btn btn-blue" href="https://calendar.google.com/calendar/u/0/r" target="_blank">
         📅 Google Calendar
-      </a>
+      </a> -->
 
       <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
     </div>
@@ -84,6 +84,56 @@
       <div class="stat-bar"><div class="stat-bar-fill"></div></div>
     </div>
   </div>
+
+    <section class="calendar-section">
+    <div class="calendar-header">
+      <button (click)="mesAnterior()">← Mes anterior</button>
+
+      <h2>{{ nombreMesActual }}</h2>
+
+      <div class="calendar-filter">
+        <select [(ngModel)]="mesSeleccionado">
+          <option *ngFor="let mes of meses; let i = index" [value]="i">
+            {{ mes }}
+          </option>
+        </select>
+
+        <select [(ngModel)]="anioSeleccionado">
+          <option *ngFor="let anio of anios" [value]="anio">
+            {{ anio }}
+          </option>
+        </select>
+
+        <button (click)="irAFechaCalendario()">Ir</button>
+      </div>
+
+      <button (click)="mesSiguiente()">Mes siguiente →</button>
+    </div>
+
+    <div class="calendar-weekdays">
+      <div>Dom</div>
+      <div>Lun</div>
+      <div>Mar</div>
+      <div>Mié</div>
+      <div>Jue</div>
+      <div>Vie</div>
+      <div>Sáb</div>
+    </div>
+
+    <div class="calendar-grid">
+      <div class="calendar-day empty" *ngFor="let day of calendarDays">
+        <ng-container *ngIf="day">
+          <strong>{{ day.day }}</strong>
+
+          <div class="appointment" *ngFor="let cita of day.citas">
+            <span>{{ cita.hora | slice:0:5 }}</span>
+            <small>{{ cita.cliente_nombre }}</small>
+            <small>{{ cita.motivo }}</small>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </section>
 
     <div class="charts-grid voice-charts-grid">
     <div class="chart-card">

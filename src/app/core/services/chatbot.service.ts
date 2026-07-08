@@ -22,7 +22,7 @@ interface RetellWebCallResponse {
   providedIn: 'root'
 })
 export class ChatbotService {
-  private backendBaseUrl = 'https://backendopensource-production.up.railway.app';
+  private backendBaseUrl = 'http://localhost:3000';
   private backendUrl = `${this.backendBaseUrl}/webhook`;
 
   constructor(private http: HttpClient) {}

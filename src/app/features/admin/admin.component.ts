@@ -25,6 +25,9 @@ export class AdminComponent implements OnInit {
   filtroEstado = '';
   busqueda = '';
 
+  currentDate = new Date();
+  calendarDays: any[] = [];
+
     metricasVoz: any = {
     total_voz: 0,
     total_texto: 0,
@@ -32,6 +35,16 @@ export class AdminComponent implements OnInit {
     tts_exito_porcentaje: 0,
     tiempo_promedio_voz_ms: 0
   };
+
+  mesSeleccionado = this.currentDate.getMonth();
+  anioSeleccionado = this.currentDate.getFullYear();
+
+  meses = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  anios = [2025, 2026, 2027, 2028, 2029, 2030];
 
   constructor(private adminService: AdminService, private router: Router) {}
 
@@ -45,6 +58,7 @@ export class AdminComponent implements OnInit {
     this.adminService.getCitas().subscribe({
       next: (data) => {
         this.citas = data;
+        this.generarCalendario();
         this.loading = false;
         setTimeout(() => {
           this.crearGraficoCitas();
@@ -236,6 +250,82 @@ export class AdminComponent implements OnInit {
 
     XLSX.writeFile(workbook, 'citas_taller_reyes.xlsx');
   }
+
+  generarCalendario() {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const startDay = firstDay.getDay();
+    const totalDays = lastDay.getDate();
+
+    this.calendarDays = [];
+
+    for (let i = 0; i < startDay; i++) {
+      this.calendarDays.push(null);
+    }
+
+    for (let day = 1; day <= totalDays; day++) {
+      const fecha = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+      const citasDelDia = this.citas.filter((c: any) => {
+        const fechaCita = this.normalizarFecha(c.fecha);
+        return fechaCita === fecha;
+      });
+
+      this.calendarDays.push({
+        day,
+        fecha,
+        citas: citasDelDia
+      });
+    }
+  }
+
+  normalizarFecha(fecha: any): string {
+    if (!fecha) return '';
+
+    if (typeof fecha === 'string') {
+      return fecha.slice(0, 10);
+    }
+
+    const d = new Date(fecha);
+
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  mesAnterior() {
+    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    this.currentDate = new Date(this.currentDate);
+
+    this.mesSeleccionado = this.currentDate.getMonth();
+    this.anioSeleccionado = this.currentDate.getFullYear();
+
+    this.generarCalendario();
+  }
+
+  mesSiguiente() {
+    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+    this.currentDate = new Date(this.currentDate);
+
+    this.mesSeleccionado = this.currentDate.getMonth();
+    this.anioSeleccionado = this.currentDate.getFullYear();
+
+    this.generarCalendario();
+  }
+
+  get nombreMesActual(): string {
+    return this.currentDate.toLocaleDateString('es-PE', {
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  irAFechaCalendario() {
+  this.currentDate = new Date(this.anioSeleccionado, this.mesSeleccionado, 1);
+  this.generarCalendario();
+}
 
 logout(): void {
     localStorage.removeItem('admin_token');
