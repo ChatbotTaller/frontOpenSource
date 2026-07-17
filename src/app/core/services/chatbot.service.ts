@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface ChatbotResponse {
   reply: string;
@@ -22,7 +23,7 @@ interface RetellWebCallResponse {
   providedIn: 'root'
 })
 export class ChatbotService {
-  private backendBaseUrl = 'https://backendopensource-production.up.railway.app';
+  private backendBaseUrl = environment.apiUrl;
   private backendUrl = `${this.backendBaseUrl}/webhook`;
 
   constructor(private http: HttpClient) {}

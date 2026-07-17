@@ -1,113 +1,281 @@
-<div class="metricas-container">
+<div class="metricas-layout" [class.sidebar-hidden]="sidebarOculto">
 
-  <!-- TOP NAV BAR -->
-  <div class="metricas-topbar">
-    <h1>Métricas IA</h1>
-    <span class="topbar-badge">Analytics</span>
+  <aside class="metricas-sidebar">
 
-    <div class="topbar-actions">
-      <button class="btn btn-secondary" routerLink="/admin">
-        ← Volver al panel
+    <div class="sidebar-brand">
+      <img src="/ReyesPolo.jpeg" alt="Taller Reyes Polo" />
+
+      <div class="sidebar-text">
+        <h2>Reyes Polo</h2>
+        <span>Métricas IA</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-menu">
+
+      <button
+        class="sidebar-link"
+        [class.active]="seccionActiva === 'dashboard'"
+        (click)="cambiarSeccion('dashboard')"
+        data-testid="menu-dashboard-metricas"
+      >
+        <b>Dashboard IA</b>
       </button>
-      <button class="btn btn-green-export" (click)="exportarExcel()">
-        ⬇ Exportar Excel
+
+      <button
+        class="sidebar-link"
+        [class.active]="seccionActiva === 'registro'"
+        (click)="cambiarSeccion('registro')"
+        data-testid="menu-registro-interacciones"
+      >
+        <b>Registro de interacciones</b>
       </button>
-    </div>
-  </div>
 
-  <!-- CONTENT -->
-  <div class="metricas-content">
 
-    <!-- KPI CARDS -->
-    <p class="section-title">Indicadores de rendimiento</p>
-    <div class="cards-container">
-      <div class="card-metrica">
-        <h3>Accuracy</h3>
-        <p>{{ resumen.accuracy }}%</p>
-      </div>
-      <div class="card-metrica">
-        <h3>Precision</h3>
-        <p>{{ resumen.precision }}%</p>
-      </div>
-      <div class="card-metrica">
-        <h3>Recall</h3>
-        <p>{{ resumen.recall }}%</p>
-      </div>
-      <div class="card-metrica">
-        <h3>F1 Score</h3>
-        <p>{{ resumen.f1_score }}%</p>
-      </div>
-      <div class="card-metrica">
-        <h3>Tiempo Prom.</h3>
-        <p>{{ resumen.tiempo_promedio_ms }}<span style="font-size:14px;color:rgba(240,237,232,0.4)"> ms</span></p>
-      </div>
-    </div>
+    </nav>
 
-    <!-- CHARTS -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <h3>Rendimiento general IA</h3>
-        <canvas id="metricasChart"></canvas>
-      </div>
-      <div class="chart-card">
-        <h3>Accuracy por intención</h3>
-        <canvas id="intentChart"></canvas>
-      </div>
-    </div>
+  </aside>
 
-    <!-- TABLE -->
-    <div class="table-card">
+  <main class="metricas-main">
 
-      <div class="table-header-row">
-        <h3>Registro de interacciones</h3>
+    <div class="metricas-topbar">
+
+      <div class="topbar-left">
+        <button class="sidebar-toggle" (click)="toggleSidebar()">
+          ☰
+        </button>
+
+        <div>
+          <h1>{{ tituloSeccionActual }}</h1>
+          <span class="topbar-badge">Analytics</span>
+        </div>
       </div>
 
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Pregunta</th>
-              <th>Respuesta IA</th>
-              <th>Intent detectado</th>
-              <th>Intent correcto</th>
-              <th>Tiempo</th>
-              <th>Correcto</th>
-              <th>Evaluar</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let metrica of metricas">
-              <td>{{ metrica.pregunta }}</td>
-              <td class="respuesta-cell">{{ metrica.respuesta }}</td>
-              <td>{{ metrica.intencion_detectada }}</td>
-              <td>
-                <select [(ngModel)]="metrica.intencion_correcta">
-                  <option value="">Seleccionar</option>
-                  <option value="appointment">appointment</option>
-                  <option value="services">services</option>
-                  <option value="inventory">inventory</option>
-                  <option value="schedule">schedule</option>
-                  <option value="info">info</option>
-                  <option value="saludo">saludo</option>
-                  <option value="appointment_pending">appointment_pending</option>
-                </select>
-              </td>
-              <td>{{ metrica.tiempo_respuesta_ms }} ms</td>
-              <td>
-                <span *ngIf="metrica.respuesta_correcta === 1"  class="status-correct">✓</span>
-                <span *ngIf="metrica.respuesta_correcta === 0"  class="status-incorrect">✗</span>
-                <span *ngIf="metrica.respuesta_correcta === null" class="status-pending">⏳</span>
-              </td>
-              <td class="actions-cell">
-                <button class="btn-correcta"   (click)="evaluar(metrica.id, true,  metrica.intencion_correcta)">✓ Correcta</button>
-                <button class="btn-incorrecta" (click)="evaluar(metrica.id, false, metrica.intencion_correcta)">✗ Incorrecta</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" routerLink="/admin">
+          Volver al panel
+        </button>
+
+        <button class="btn btn-green-export" (click)="exportarExcel()">
+          Exportar Excel
+        </button>
       </div>
 
     </div>
 
-  </div>
+    <div class="metricas-content">
+
+          <section *ngIf="seccionActiva === 'dashboard'" class="metricas-section">
+
+      <div class="section-header">
+        <div>
+          <p class="section-title">Indicadores y gráficos de rendimiento</p>
+          <h2>Dashboard de métricas IA</h2>
+        </div>
+
+        <p class="section-description">
+          Vista general del rendimiento del sistema conversacional mediante indicadores numéricos y gráficos de evaluación.
+        </p>
+      </div>
+
+      <div class="cards-container">
+        <div class="card-metrica accuracy" data-testid="metrica-accuracy">
+          <h3>Accuracy</h3>
+          <p>{{ resumen.accuracy }}%</p>
+        </div>
+
+        <div class="card-metrica precision" data-testid="metrica-precision">
+          <h3>Precision</h3>
+          <p>{{ resumen.precision }}%</p>
+        </div>
+
+        <div class="card-metrica recall" data-testid="metrica-recall">
+          <h3>Recall</h3>
+          <p>{{ resumen.recall }}%</p>
+        </div>
+
+        <div class="card-metrica f1" data-testid="metrica-f1">
+          <h3>F1 Score</h3>
+          <p>{{ resumen.f1_score }}%</p>
+        </div>
+
+        <div class="card-metrica tiempo" data-testid="metrica-tiempo">
+          <h3>Tiempo Prom.</h3>
+          <p>
+            {{ resumen.tiempo_promedio_ms }}
+            <span>ms</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Rendimiento general IA</h3>
+          <canvas id="metricasChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+          <h3>Accuracy por intención</h3>
+          <canvas id="intentChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+      <section *ngIf="seccionActiva === 'registro'" class="metricas-section">
+
+        <div class="section-header">
+          <div>
+            <p class="section-title">Evaluación manual</p>
+            <h2>Registro de interacciones</h2>
+          </div>
+
+          <p class="section-description">
+            Permite revisar preguntas, respuestas generadas, intención detectada y evaluar la precisión del chatbot.
+          </p>
+        </div>
+
+        <div class="table-card">
+
+          <div class="table-header-row">
+            <h3>Interacciones registradas</h3>
+
+            <select
+              class="filter-select"
+              [(ngModel)]="itemsPorPagina"
+              (ngModelChange)="cambiarItemsPorPagina()"
+              data-testid="metricas-items-pagina">
+              <option *ngFor="let opcion of opcionesItemsPorPagina" [value]="opcion">
+                Mostrar {{ opcion }}
+              </option>
+            </select>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pregunta</th>
+                  <th>Respuesta IA</th>
+                  <th>Intent detectado</th>
+                  <th>Intent correcto</th>
+                  <th>Tiempo</th>
+                  <th>Correcto</th>
+                  <th>Evaluar</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr
+                  *ngFor="let metrica of metricasPaginadas"
+                  [attr.data-metrica-id]="metrica.id"
+                  [attr.data-respuesta-correcta]="metrica.respuesta_correcta"
+                  [attr.data-intent-detectado]="metrica.intencion_detectada"
+                >
+                  <td>{{ metrica.pregunta }}</td>
+                  <td class="respuesta-cell">{{ metrica.respuesta }}</td>
+                  <td>{{ metrica.intencion_detectada }}</td>
+                  <td>
+                    <select
+                      [(ngModel)]="metrica.intencion_correcta"
+                      data-testid="select-intent-correcto"
+                    >
+                      <option value="">Seleccionar</option>
+                      <option value="appointment">appointment</option>
+                      <option value="services">services</option>
+                      <option value="inventory">inventory</option>
+                      <option value="schedule">schedule</option>
+                      <option value="info">info</option>
+                      <option value="saludo">saludo</option>
+                      <option value="appointment_pending">appointment_pending</option>
+                    </select>
+                  </td>
+                  <td>{{ metrica.tiempo_respuesta_ms }} ms</td>
+                  <td>
+                    <span
+                      *ngIf="metrica.respuesta_correcta === 1"
+                      class="status-correct"
+                      data-testid="estado-evaluacion"
+                    >
+                      Correcta
+                    </span>
+
+                    <span
+                      *ngIf="metrica.respuesta_correcta === 0"
+                      class="status-incorrect"
+                      data-testid="estado-evaluacion"
+                    >
+                      Incorrecta
+                    </span>
+
+                    <span
+                      *ngIf="metrica.respuesta_correcta === null"
+                      class="status-pending"
+                      data-testid="estado-evaluacion"
+                    >
+                      Pendiente
+                    </span>
+                  </td>
+                  <td class="actions-cell">
+                    <button
+                      class="btn-correcta"
+                      data-testid="btn-evaluar-correcta"
+                      (click)="evaluar(metrica.id, true, metrica.intencion_correcta)"
+                    >
+                      Correcta
+                    </button>
+
+                    <button
+                      class="btn-incorrecta"
+                      data-testid="btn-evaluar-incorrecta"
+                      (click)="evaluar(metrica.id, false, metrica.intencion_correcta)"
+                    >
+                      Incorrecta
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-panel" *ngIf="metricas.length > 0">
+
+            <div class="pagination-info">
+              Mostrando {{ rangoInicio }} - {{ rangoFin }} de {{ metricas.length }} interacciones
+            </div>
+
+            <div class="pagination-actions">
+              <button
+                class="pagination-btn"
+                [disabled]="paginaActual === 1"
+                (click)="cambiarPagina(paginaActual - 1)">
+                Anterior
+              </button>
+
+              <span class="pagination-current">
+                Página {{ paginaActual }} de {{ totalPaginas }}
+              </span>
+
+              <button
+                class="pagination-btn"
+                [disabled]="paginaActual === totalPaginas"
+                (click)="cambiarPagina(paginaActual + 1)">
+                Siguiente
+              </button>
+            </div>
+
+          </div>
+
+          <div class="pagination-empty" *ngIf="metricas.length === 0">
+            No existen métricas registradas.
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
 </div>

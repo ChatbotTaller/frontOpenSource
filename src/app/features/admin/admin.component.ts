@@ -17,6 +17,10 @@ import * as XLSX from 'xlsx-js-style';
 })
 export class AdminComponent implements OnInit {
 
+  seccionActiva: 'resumen' | 'citas' | 'calendario' | 'voz' = 'resumen';
+
+  sidebarColapsado = false;
+
   citas: any[] = [];
   loading = true;
 
@@ -25,13 +29,31 @@ export class AdminComponent implements OnInit {
   filtroEstado = '';
   busqueda = '';
 
-    metricasVoz: any = {
+  paginaActual = 1;
+  itemsPorPagina = 5;
+
+  opcionesItemsPorPagina = [5, 10, 20, 50];
+
+  currentDate = new Date();
+  calendarDays: any[] = [];
+
+  metricasVoz: any = {
     total_voz: 0,
     total_texto: 0,
     stt_exito_porcentaje: 0,
     tts_exito_porcentaje: 0,
     tiempo_promedio_voz_ms: 0
   };
+
+  mesSeleccionado = this.currentDate.getMonth();
+  anioSeleccionado = this.currentDate.getFullYear();
+
+  meses = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  anios = [2025, 2026, 2027, 2028, 2029, 2030];
 
   constructor(private adminService: AdminService, private router: Router) {}
 
@@ -40,22 +62,38 @@ export class AdminComponent implements OnInit {
     this.loadMetricasVoz();
   }
 
-  loadCitas(): void {
+  cambiarSeccion(seccion: 'resumen' | 'citas' | 'calendario' | 'voz'): void {
+    this.seccionActiva = seccion;
 
+    setTimeout(() => {
+      if (seccion === 'resumen') {
+        this.crearGraficoCitas();
+      }
+
+      if (seccion === 'voz') {
+        this.crearGraficoVozTexto();
+      }
+    }, 150);
+  }
+
+  loadCitas(): void {
     this.adminService.getCitas().subscribe({
       next: (data) => {
         this.citas = data;
+        this.generarCalendario();
         this.loading = false;
+
         setTimeout(() => {
-          this.crearGraficoCitas();
-        }, 100);
+          if (this.seccionActiva === 'resumen') {
+            this.crearGraficoCitas();
+          }
+        }, 150);
       },
       error: (error) => {
         console.error(error);
         this.loading = false;
       }
     });
-
   }
 
   crearGraficoCitas(): void {
@@ -79,7 +117,21 @@ export class AdminComponent implements OnInit {
               this.citasConfirmadas,
               this.citasCompletadas,
               this.citasCanceladas
-            ]
+            ],
+            backgroundColor: [
+              'rgba(251, 191, 36, 0.75)',
+              'rgba(52, 211, 153, 0.75)',  
+              'rgba(34, 197, 94, 0.75)',   
+              'rgba(248, 113, 113, 0.75)'  
+            ],
+            borderColor: [
+              'rgba(251, 191, 36, 1)',
+              'rgba(52, 211, 153, 1)',
+              'rgba(34, 197, 94, 1)',
+              'rgba(248, 113, 113, 1)'
+            ],
+            borderWidth: 1,
+            borderRadius: 8
           }
         ]
       },
@@ -103,7 +155,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-    crearGraficoVozTexto(): void {
+  crearGraficoVozTexto(): void {
     const canvas = document.getElementById('vozTextoChart') as HTMLCanvasElement;
 
     if (!canvas) return;
@@ -143,8 +195,10 @@ export class AdminComponent implements OnInit {
         this.metricasVoz = data;
 
         setTimeout(() => {
-          this.crearGraficoVozTexto();
-        }, 100);
+          if (this.seccionActiva === 'voz') {
+            this.crearGraficoVozTexto();
+          }
+        }, 150);
       },
       error: (error) => {
         console.error('Error cargando métricas de voz:', error);
@@ -153,21 +207,15 @@ export class AdminComponent implements OnInit {
   }
 
   cambiarEstado(id: number, estado: string): void {
-
-  this.adminService.updateEstado(id, estado)
-    .subscribe({
-
+    this.adminService.updateEstado(id, estado).subscribe({
       next: () => {
         this.loadCitas();
       },
-
       error: (error) => {
         console.error(error);
       }
-
     });
-
-}
+  }
 
   exportarCitasExcel(): void {
     const data = this.citasFiltradas.map((cita: any) => ({
@@ -237,7 +285,87 @@ export class AdminComponent implements OnInit {
     XLSX.writeFile(workbook, 'citas_taller_reyes.xlsx');
   }
 
-logout(): void {
+  generarCalendario(): void {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const startDay = firstDay.getDay();
+    const totalDays = lastDay.getDate();
+
+    this.calendarDays = [];
+
+    for (let i = 0; i < startDay; i++) {
+      this.calendarDays.push(null);
+    }
+
+    for (let day = 1; day <= totalDays; day++) {
+      const fecha = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+      const citasDelDia = this.citas.filter((c: any) => {
+        const fechaCita = this.normalizarFecha(c.fecha);
+        return fechaCita === fecha;
+      });
+
+      this.calendarDays.push({
+        day,
+        fecha,
+        citas: citasDelDia
+      });
+    }
+  }
+
+  normalizarFecha(fecha: any): string {
+    if (!fecha) return '';
+
+    if (typeof fecha === 'string') {
+      return fecha.slice(0, 10);
+    }
+
+    const d = new Date(fecha);
+
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  mesAnterior(): void {
+    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    this.currentDate = new Date(this.currentDate);
+
+    this.mesSeleccionado = this.currentDate.getMonth();
+    this.anioSeleccionado = this.currentDate.getFullYear();
+
+    this.generarCalendario();
+  }
+
+  mesSiguiente(): void {
+    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+    this.currentDate = new Date(this.currentDate);
+
+    this.mesSeleccionado = this.currentDate.getMonth();
+    this.anioSeleccionado = this.currentDate.getFullYear();
+
+    this.generarCalendario();
+  }
+
+  get nombreMesActual(): string {
+    return this.currentDate.toLocaleDateString('es-PE', {
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  irAFechaCalendario(): void {
+    this.currentDate = new Date(this.anioSeleccionado, this.mesSeleccionado, 1);
+    this.generarCalendario();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarColapsado = !this.sidebarColapsado;
+  }
+
+  logout(): void {
     localStorage.removeItem('admin_token');
     this.router.navigate(['/login']);
   }
@@ -262,10 +390,8 @@ logout(): void {
     return this.citas.filter(c => c.estado === 'completada').length;
   }
 
-  get citasFiltradas() {
-
+  get citasFiltradas(): any[] {
     return this.citas.filter((cita: any) => {
-
       const coincideBusqueda =
         cita.cliente_nombre
           ?.toLowerCase()
@@ -276,10 +402,61 @@ logout(): void {
         cita.estado === this.filtroEstado;
 
       return coincideBusqueda && coincideEstado;
-
     });
-
   }
 
+  get tituloSeccionActual(): string {
+    switch (this.seccionActiva) {
+      case 'resumen':
+        return 'Resumen general';
+      case 'citas':
+        return 'Gestión de citas';
+      case 'calendario':
+        return 'Calendario de citas';
+      case 'voz':
+        return 'Métricas de voz';
+      default:
+        return 'Panel Admin';
+    }
+  }
 
+  get totalPaginas(): number {
+    return Math.ceil(this.citasFiltradas.length / this.itemsPorPagina) || 1;
+  }
+
+  get citasPaginadas(): any[] {
+    const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
+    const fin = inicio + this.itemsPorPagina;
+
+    return this.citasFiltradas.slice(inicio, fin);
+  }
+
+  get rangoInicio(): number {
+    if (this.citasFiltradas.length === 0) {
+      return 0;
+    }
+
+    return (this.paginaActual - 1) * this.itemsPorPagina + 1;
+  }
+
+  get rangoFin(): number {
+    const fin = this.paginaActual * this.itemsPorPagina;
+    return fin > this.citasFiltradas.length ? this.citasFiltradas.length : fin;
+  }
+
+  cambiarPagina(pagina: number): void {
+    if (pagina < 1 || pagina > this.totalPaginas) {
+      return;
+    }
+
+    this.paginaActual = pagina;
+  }
+
+  cambiarItemsPorPagina(): void {
+    this.paginaActual = 1;
+  }
+
+  reiniciarPaginacion(): void {
+    this.paginaActual = 1;
+  }
 }
