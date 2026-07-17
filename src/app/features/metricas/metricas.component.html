@@ -16,14 +16,18 @@
       <button
         class="sidebar-link"
         [class.active]="seccionActiva === 'dashboard'"
-        (click)="cambiarSeccion('dashboard')">
+        (click)="cambiarSeccion('dashboard')"
+        data-testid="menu-dashboard-metricas"
+      >
         <b>Dashboard IA</b>
       </button>
 
       <button
         class="sidebar-link"
         [class.active]="seccionActiva === 'registro'"
-        (click)="cambiarSeccion('registro')">
+        (click)="cambiarSeccion('registro')"
+        data-testid="menu-registro-interacciones"
+      >
         <b>Registro de interacciones</b>
       </button>
 
@@ -75,27 +79,27 @@
       </div>
 
       <div class="cards-container">
-        <div class="card-metrica accuracy">
+        <div class="card-metrica accuracy" data-testid="metrica-accuracy">
           <h3>Accuracy</h3>
           <p>{{ resumen.accuracy }}%</p>
         </div>
 
-        <div class="card-metrica precision">
+        <div class="card-metrica precision" data-testid="metrica-precision">
           <h3>Precision</h3>
           <p>{{ resumen.precision }}%</p>
         </div>
 
-        <div class="card-metrica recall">
+        <div class="card-metrica recall" data-testid="metrica-recall">
           <h3>Recall</h3>
           <p>{{ resumen.recall }}%</p>
         </div>
 
-        <div class="card-metrica f1">
+        <div class="card-metrica f1" data-testid="metrica-f1">
           <h3>F1 Score</h3>
           <p>{{ resumen.f1_score }}%</p>
         </div>
 
-        <div class="card-metrica tiempo">
+        <div class="card-metrica tiempo" data-testid="metrica-tiempo">
           <h3>Tiempo Prom.</h3>
           <p>
             {{ resumen.tiempo_promedio_ms }}
@@ -139,7 +143,8 @@
             <select
               class="filter-select"
               [(ngModel)]="itemsPorPagina"
-              (ngModelChange)="cambiarItemsPorPagina()">
+              (ngModelChange)="cambiarItemsPorPagina()"
+              data-testid="metricas-items-pagina">
               <option *ngFor="let opcion of opcionesItemsPorPagina" [value]="opcion">
                 Mostrar {{ opcion }}
               </option>
@@ -161,12 +166,20 @@
               </thead>
 
               <tbody>
-                <tr *ngFor="let metrica of metricasPaginadas">
+                <tr
+                  *ngFor="let metrica of metricasPaginadas"
+                  [attr.data-metrica-id]="metrica.id"
+                  [attr.data-respuesta-correcta]="metrica.respuesta_correcta"
+                  [attr.data-intent-detectado]="metrica.intencion_detectada"
+                >
                   <td>{{ metrica.pregunta }}</td>
                   <td class="respuesta-cell">{{ metrica.respuesta }}</td>
                   <td>{{ metrica.intencion_detectada }}</td>
                   <td>
-                    <select [(ngModel)]="metrica.intencion_correcta">
+                    <select
+                      [(ngModel)]="metrica.intencion_correcta"
+                      data-testid="select-intent-correcto"
+                    >
                       <option value="">Seleccionar</option>
                       <option value="appointment">appointment</option>
                       <option value="services">services</option>
@@ -179,20 +192,44 @@
                   </td>
                   <td>{{ metrica.tiempo_respuesta_ms }} ms</td>
                   <td>
-                    <span *ngIf="metrica.respuesta_correcta === 1" class="status-correct">Correcta</span>
-                    <span *ngIf="metrica.respuesta_correcta === 0" class="status-incorrect">Incorrecta</span>
-                    <span *ngIf="metrica.respuesta_correcta === null" class="status-pending">Pendiente</span>
+                    <span
+                      *ngIf="metrica.respuesta_correcta === 1"
+                      class="status-correct"
+                      data-testid="estado-evaluacion"
+                    >
+                      Correcta
+                    </span>
+
+                    <span
+                      *ngIf="metrica.respuesta_correcta === 0"
+                      class="status-incorrect"
+                      data-testid="estado-evaluacion"
+                    >
+                      Incorrecta
+                    </span>
+
+                    <span
+                      *ngIf="metrica.respuesta_correcta === null"
+                      class="status-pending"
+                      data-testid="estado-evaluacion"
+                    >
+                      Pendiente
+                    </span>
                   </td>
                   <td class="actions-cell">
                     <button
                       class="btn-correcta"
-                      (click)="evaluar(metrica.id, true, metrica.intencion_correcta)">
+                      data-testid="btn-evaluar-correcta"
+                      (click)="evaluar(metrica.id, true, metrica.intencion_correcta)"
+                    >
                       Correcta
                     </button>
 
                     <button
                       class="btn-incorrecta"
-                      (click)="evaluar(metrica.id, false, metrica.intencion_correcta)">
+                      data-testid="btn-evaluar-incorrecta"
+                      (click)="evaluar(metrica.id, false, metrica.intencion_correcta)"
+                    >
                       Incorrecta
                     </button>
                   </td>

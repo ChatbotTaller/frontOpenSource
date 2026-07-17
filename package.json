@@ -8,7 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "selenium": "node selenium/chatbot.selenium.js",
-    "selenium:cita": "node selenium/cita.selenium.js"
+    "selenium:cita": "node selenium/cita.selenium.js",
+    "selenium:admin": "node selenium/admin-citas.selenium.js",
+    "selenium:metricas": "node selenium/admin-metricas.selenium.js"
   },
   "private": true,
   "dependencies": {

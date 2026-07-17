@@ -24,14 +24,18 @@
       <button
         class="sidebar-link"
         [class.active]="seccionActiva === 'citas'"
-        (click)="cambiarSeccion('citas')">
+        (click)="cambiarSeccion('citas')"
+        data-testid="menu-citas"
+      >
         <b>Gestión de citas</b>
       </button>
 
       <button
         class="sidebar-link"
         [class.active]="seccionActiva === 'calendario'"
-        (click)="cambiarSeccion('calendario')">
+        (click)="cambiarSeccion('calendario')"
+        data-testid="menu-calendario"
+      >
         <b>Calendario</b>
       </button>
 
@@ -65,7 +69,11 @@
       </div>
 
       <div class="topbar-actions">
-        <button class="btn btn-secondary" routerLink="/metricas">
+        <button
+          class="btn btn-secondary"
+          routerLink="/metricas"
+          data-testid="btn-metricas-ia"
+        >
           Métricas IA
         </button>
 
@@ -178,7 +186,9 @@
               <select
                 class="filter-select"
                 [(ngModel)]="itemsPorPagina"
-                (ngModelChange)="cambiarItemsPorPagina()">
+                (ngModelChange)="cambiarItemsPorPagina()"
+                data-testid="citas-items-pagina"
+              >
 
                 <option *ngFor="let opcion of opcionesItemsPorPagina" [value]="opcion">
                   Mostrar {{ opcion }} citas
@@ -208,7 +218,11 @@
               </thead>
 
               <tbody>
-                <tr *ngFor="let cita of citasPaginadas">
+                  <tr
+                    *ngFor="let cita of citasPaginadas"
+                    [attr.data-cita-id]="cita.id"
+                    [attr.data-cita-estado]="cita.estado"
+                    >
                   <td>{{ cita.cliente_nombre }}</td>
                   <td>{{ cita.cliente_telefono }}</td>
                   <td>{{ cita.vehiculo_texto }}</td>
@@ -218,6 +232,7 @@
                   <td>
                     <span
                       class="estado-badge"
+                      data-testid="cita-estado"
                       [class.estado-pendiente]="cita.estado === 'pendiente'"
                       [class.estado-confirmada]="cita.estado === 'confirmada'"
                       [class.estado-completada]="cita.estado === 'completada'"
@@ -227,13 +242,27 @@
                     </span>
                   </td>
                   <td class="acciones-admin">
-                    <button class="btn-confirmar" (click)="cambiarEstado(cita.id, 'confirmada')">
+                    <button
+                      class="btn-confirmar"
+                      data-testid="btn-confirmar"
+                      (click)="cambiarEstado(cita.id, 'confirmada')"
+                    >
                       Confirmar
                     </button>
-                    <button class="btn-completar" (click)="cambiarEstado(cita.id, 'completada')">
+
+                    <button
+                      class="btn-completar"
+                      data-testid="btn-completar"
+                      (click)="cambiarEstado(cita.id, 'completada')"
+                    >
                       Completar
                     </button>
-                    <button class="btn-cancelar" (click)="cambiarEstado(cita.id, 'cancelada')">
+
+                    <button
+                      class="btn-cancelar"
+                      data-testid="btn-cancelar"
+                      (click)="cambiarEstado(cita.id, 'cancelada')"
+                    >
                       Cancelar
                     </button>
                   </td>
@@ -300,19 +329,30 @@
             <h2>{{ nombreMesActual }}</h2>
 
             <div class="calendar-filter">
-              <select [(ngModel)]="mesSeleccionado">
+              <select
+                [(ngModel)]="mesSeleccionado"
+                data-testid="calendario-mes"
+              >
                 <option *ngFor="let mes of meses; let i = index" [value]="i">
                   {{ mes }}
                 </option>
               </select>
 
-              <select [(ngModel)]="anioSeleccionado">
+              <select
+                [(ngModel)]="anioSeleccionado"
+                data-testid="calendario-anio"
+              >
                 <option *ngFor="let anio of anios" [value]="anio">
                   {{ anio }}
                 </option>
               </select>
 
-              <button (click)="irAFechaCalendario()">Ir</button>
+              <button
+                (click)="irAFechaCalendario()"
+                data-testid="calendario-ir"
+              >
+                Ir
+              </button>
             </div>
 
             <button (click)="mesSiguiente()">Mes siguiente →</button>
@@ -333,7 +373,11 @@
               <ng-container *ngIf="day">
                 <strong>{{ day.day }}</strong>
 
-                <div class="appointment" *ngFor="let cita of day.citas">
+                <div
+                  class="appointment"
+                  *ngFor="let cita of day.citas"
+                  [attr.data-cita-id]="cita.id"
+                >
                   <span>{{ cita.hora | slice:0:5 }}</span>
                   <small>{{ cita.cliente_nombre }}</small>
                   <small>{{ cita.motivo }}</small>

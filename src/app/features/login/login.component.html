@@ -12,6 +12,7 @@
         type="text"
         placeholder="Ingresa tu usuario"
         [(ngModel)]="usuario"
+        data-testid="admin-usuario"
       />
     </div>
 
@@ -22,10 +23,15 @@
         placeholder="••••••••"
         [(ngModel)]="password"
         (keydown.enter)="login()"
+        data-testid="admin-password"
       />
     </div>
 
-    <button class="login-btn" (click)="login()">
+    <button
+      class="login-btn"
+      (click)="login()"
+      data-testid="admin-login"
+    >
       Ingresar al panel
     </button>
 
