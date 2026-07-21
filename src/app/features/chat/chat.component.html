@@ -19,19 +19,29 @@
         class="voice-toggle-btn"
         [class.active]="voiceEnabled"
         (click)="toggleVoice()"
-        title="Activar o desactivar respuesta por voz"
+        [title]="voiceEnabled ? 'Silenciar respuestas' : 'Activar respuestas por voz'"
+        [attr.aria-label]="voiceEnabled ? 'Silenciar respuestas' : 'Activar respuestas por voz'"
       >
-        {{ voiceEnabled ? '🔊' : '🔇' }}
+        <img
+          [src]="voiceEnabled ? '/bocina.png' : '/mute.png'"
+          [alt]="voiceEnabled ? 'Sonido activado' : 'Sonido silenciado'"
+          class="header-icon bocina-icon"
+        />
       </button>
 
       <a
         class="whatsapp-btn"
         href="https://wa.me/15556406310?text=Hola%2C%20quiero%20hacer%20una%20consulta"
         target="_blank"
+        rel="noopener noreferrer"
         title="Abrir WhatsApp"
         aria-label="Contactar por WhatsApp"
       >
-        <img src="/IconoWhatsapp.png" alt="WhatsApp" class="whatsapp-btn-icon" />
+        <img
+          src="/wtsp.png"
+          alt="WhatsApp"
+          class="header-icon whatsapp-btn-icon"
+        />
       </a>
 
       <button class="back-client-btn" (click)="volverSelector()">
@@ -157,14 +167,24 @@
           <button
             class="voice-btn"
             [class.listening]="isListening"
-            title="Mantén presionado para hablar o toca para activar/desactivar"
+            title="Mantén presionado para hablar o toca para activar o desactivar"
             [disabled]="isLoading || !speechSupported"
             (pointerdown)="handleMicPointerDown($event)"
             (pointerup)="handleMicPointerUp($event)"
             (pointerleave)="isHoldMode && isListening ? stopListeningAndSend() : null"
             aria-label="Hablar con el asistente"
           >
-            {{ isListening ? '■' : '🎤' }}
+            <ng-container *ngIf="isListening; else microphoneIcon">
+              <span class="recording-stop" aria-hidden="true"></span>
+            </ng-container>
+
+            <ng-template #microphoneIcon>
+              <img
+                src="/mic.png"
+                alt="Micrófono"
+                class="mic-btn-icon"
+              />
+            </ng-template>
           </button>
 
           <button

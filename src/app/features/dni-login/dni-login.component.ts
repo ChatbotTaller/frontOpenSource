@@ -25,6 +25,10 @@ export class DniLoginComponent {
 
   ingresar(): void {
 
+  if (this.cargando) {
+    return;
+  }
+
   this.error = '';
 
   if (!/^\d{8}$/.test(this.dni)) {
