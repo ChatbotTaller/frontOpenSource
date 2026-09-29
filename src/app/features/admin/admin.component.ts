@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../core/services/admin.service';
 import { Router } from '@angular/router';
@@ -19,7 +19,9 @@ export class AdminComponent implements OnInit {
 
   seccionActiva: 'resumen' | 'citas' | 'calendario' | 'voz' = 'resumen';
 
-  sidebarColapsado = false;
+  sidebarColapsado = window.innerWidth <= 900;
+
+  private vistaMovil = window.innerWidth <= 900;
 
   citas: any[] = [];
   loading = true;
@@ -62,8 +64,14 @@ export class AdminComponent implements OnInit {
     this.loadMetricasVoz();
   }
 
-  cambiarSeccion(seccion: 'resumen' | 'citas' | 'calendario' | 'voz'): void {
+  cambiarSeccion(
+    seccion: 'resumen' | 'citas' | 'calendario' | 'voz'
+  ): void {
     this.seccionActiva = seccion;
+
+    if (window.innerWidth <= 900) {
+      this.sidebarColapsado = true;
+    }
 
     setTimeout(() => {
       if (seccion === 'resumen') {
@@ -94,6 +102,16 @@ export class AdminComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    const ahoraEsMovil = window.innerWidth <= 900;
+
+    if (ahoraEsMovil !== this.vistaMovil) {
+      this.vistaMovil = ahoraEsMovil;
+      this.sidebarColapsado = ahoraEsMovil;
+    }
   }
 
   crearGraficoCitas(): void {

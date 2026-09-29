@@ -51,6 +51,12 @@
 
   </aside>
 
+  <div
+    class="sidebar-backdrop"
+    *ngIf="!sidebarColapsado"
+    (click)="toggleSidebar()">
+  </div>
+
   <!-- MAIN -->
   <main class="admin-main">
 

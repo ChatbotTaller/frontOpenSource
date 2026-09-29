@@ -168,11 +168,11 @@
   background: rgba(224, 49, 30, 0.12);
 }
 
-.whatsapp-btn {
+/* .whatsapp-btn {
   background: rgba(37, 211, 102, 0.07);
   border: 1px solid rgba(37, 211, 102, 0.16);
   text-decoration: none;
-}
+} */
 
 .whatsapp-btn:hover,
 .voice-toggle-btn:hover {
@@ -1311,4 +1311,182 @@ textarea::placeholder {
 
 .logout-client-btn:hover {
   background: rgba(248,113,113,0.12);
+}
+
+/* =============================================
+   ÍCONOS MINIMALISTAS DEL CHATBOT
+   ============================================= */
+
+.voice-toggle-btn,
+.whatsapp-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 11px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Sonido */
+
+/* .voice-toggle-btn {
+  background: rgba(224, 49, 30, 0.06);
+  border: 1px solid rgba(224, 49, 30, 0.28);
+} */
+
+/* WhatsApp */
+
+.whatsapp-btn {
+  background: rgba(37, 211, 102, 0.05);
+  border: 1px solid rgba(37, 211, 102, 0.22);
+}
+
+/* Íconos superiores */
+
+.header-icon {
+  width: 21px;
+  height: 21px;
+
+  display: block;
+  object-fit: contain;
+
+  pointer-events: none;
+  transition: transform 0.18s ease;
+}
+
+.voice-toggle-btn:hover,
+.whatsapp-btn:hover {
+  transform: scale(1.04);
+}
+
+/* .voice-toggle-btn:hover {
+  background: rgba(224, 49, 30, 0.12);
+  border-color: rgba(224, 49, 30, 0.48);
+} */
+
+/* .whatsapp-btn:hover {
+  background: rgba(37, 211, 102, 0.1);
+  border-color: rgba(37, 211, 102, 0.42);
+} */
+
+/* Micrófono */
+
+.voice-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+.mic-btn-icon {
+  width: 21px;
+  height: 21px;
+
+  display: block;
+  object-fit: contain;
+
+  pointer-events: none;
+  transition: transform 0.18s ease;
+}
+
+.voice-btn:hover .mic-btn-icon {
+  transform: scale(1.06);
+}
+
+/* Grabación activa */
+
+.voice-btn.listening {
+  background: #e0311e;
+  color: #ffffff;
+  animation: pulseMic 1s infinite;
+}
+
+.recording-stop {
+  width: 13px;
+  height: 13px;
+
+  display: block;
+
+  background: #ffffff;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+/* =============================================
+   BOTONES DEL HEADER — ESTILO MINIMALISTA
+   ============================================= */
+
+.voice-toggle-btn,
+.whatsapp-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 11px;
+
+  box-shadow: none;
+  overflow: hidden;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* Quitar los colores rojo y verde del fondo */
+
+.voice-toggle-btn,
+.voice-toggle-btn.active {
+  background: #181818;
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+.whatsapp-btn {
+  background: #181818;
+  border-color: rgba(255, 255, 255, 0.10);
+}
+
+/* Hover discreto */
+
+.voice-toggle-btn:hover,
+.whatsapp-btn:hover {
+  background: #202020;
+  border-color: rgba(224, 49, 30, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Íconos */
+
+.header-icon {
+  width: 21px;
+  height: 21px;
+
+  display: block;
+  object-fit: contain;
+
+  pointer-events: none;
+  transition:
+    transform 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.voice-toggle-btn:hover .header-icon,
+.whatsapp-btn:hover .header-icon {
+  transform: scale(1.05);
 }

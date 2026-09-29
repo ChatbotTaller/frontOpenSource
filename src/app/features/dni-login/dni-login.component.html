@@ -13,6 +13,7 @@
       maxlength="8"
       [(ngModel)]="dni"
       placeholder="Ingrese su DNI"
+      (keydown.enter)="ingresar()"
     />
 
     <button

@@ -683,3 +683,186 @@ tbody tr:last-child td {
     font-size: 23px;
   }
 }
+
+/* =========================================
+   SIDEBAR RESPONSIVE TIPO DRAWER - MÉTRICAS
+   ========================================= */
+
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 900px) {
+
+  .metricas-layout,
+  .metricas-layout.sidebar-hidden {
+    display: block;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .metricas-main {
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .metricas-sidebar,
+  .metricas-layout.sidebar-hidden .metricas-sidebar {
+    display: flex;
+
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+
+    width: min(82vw, 280px);
+    height: 100dvh;
+    max-height: none;
+
+    padding: 22px 16px;
+
+    background: #111111;
+
+    border-right:
+      1px solid rgba(255, 255, 255, 0.07);
+    border-bottom: none;
+
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    z-index: 1000;
+
+    box-shadow:
+      15px 0 40px rgba(0, 0, 0, 0.45);
+
+    transition:
+      transform 0.22s ease,
+      opacity 0.18s ease;
+  }
+
+  .metricas-layout.sidebar-hidden
+  .metricas-sidebar {
+    opacity: 0;
+    transform: translateX(-105%);
+    pointer-events: none;
+  }
+
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(2px);
+
+    z-index: 999;
+  }
+
+  .metricas-topbar {
+    width: 100%;
+    padding: 10px 14px;
+    z-index: 200;
+  }
+
+  .topbar-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar-left > div {
+    min-width: 0;
+  }
+
+  .metricas-topbar h1 {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .metricas-content {
+    width: 100%;
+    padding: 18px 14px 32px;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .metricas-topbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    margin-left: 0;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .topbar-actions .btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .cards-container {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .card-metrica {
+    min-width: 0;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card {
+    min-width: 0;
+    padding: 14px;
+  }
+
+  .chart-card canvas {
+    max-width: 100%;
+  }
+
+  .table-card {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 380px) {
+
+  .topbar-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}

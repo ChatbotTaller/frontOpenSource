@@ -36,6 +36,12 @@
 
   </aside>
 
+  <div
+    class="sidebar-backdrop"
+    *ngIf="!sidebarOculto"
+    (click)="toggleSidebar()">
+  </div>
+
   <main class="metricas-main">
 
     <div class="metricas-topbar">

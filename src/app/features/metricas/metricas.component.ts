@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, HostListener, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AdminService } from '../../core/services/admin.service';
 import { RouterModule } from '@angular/router';
@@ -17,7 +17,9 @@ import * as XLSX from 'xlsx-js-style';
 export class MetricasComponent implements OnInit {
 
   seccionActiva: 'dashboard' | 'registro' = 'dashboard';
-  sidebarOculto = false;
+  sidebarOculto = window.innerWidth <= 900;
+
+  private vistaMovil = window.innerWidth <= 900;
 
   metricas: any[] = [];
   chartMetricas: any;
@@ -44,8 +46,24 @@ export class MetricasComponent implements OnInit {
     this.cargarMetricasPorIntent();
   }
 
-  cambiarSeccion(seccion: 'dashboard' | 'registro'): void {
+  @HostListener('window:resize')
+  onResize(): void {
+    const ahoraEsMovil = window.innerWidth <= 900;
+
+    if (ahoraEsMovil !== this.vistaMovil) {
+      this.vistaMovil = ahoraEsMovil;
+      this.sidebarOculto = ahoraEsMovil;
+    }
+  }
+
+  cambiarSeccion(
+    seccion: 'dashboard' | 'registro'
+  ): void {
     this.seccionActiva = seccion;
+
+    if (window.innerWidth <= 900) {
+      this.sidebarOculto = true;
+    }
 
     setTimeout(() => {
       if (seccion === 'dashboard') {
