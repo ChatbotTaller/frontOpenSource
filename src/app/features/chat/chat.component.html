@@ -2,7 +2,12 @@
 
   <div class="header">
     <div class="header-left">
-      <img src="/ReyesPolo.jpeg" alt="Reyes Polo" class="logo-header-icon" />
+      <img
+        src="ReyesPolo.jpeg"
+        alt="Logo de Taller Reyes Polo"
+        class="logo-header-icon"
+        (error)="useImageFallback($event, 'favicon.ico')"
+      />
       <div class="header-info">
         <h1>Taller Reyes Polo</h1>
         <p>Cliente: {{ nombreCliente }} · Trujillo, La Libertad</p>
@@ -23,26 +28,11 @@
         [attr.aria-label]="voiceEnabled ? 'Silenciar respuestas' : 'Activar respuestas por voz'"
       >
         <img
-          [src]="voiceEnabled ? '/bocina.png' : '/mute.png'"
+          [src]="voiceEnabled ? 'bocina.png' : 'mute.png'"
           [alt]="voiceEnabled ? 'Sonido activado' : 'Sonido silenciado'"
           class="header-icon bocina-icon"
         />
       </button>
-
-      <a
-        class="whatsapp-btn"
-        href="https://wa.me/15556406310?text=Hola%2C%20quiero%20hacer%20una%20consulta"
-        target="_blank"
-        rel="noopener noreferrer"
-        title="Abrir WhatsApp"
-        aria-label="Contactar por WhatsApp"
-      >
-        <img
-          src="/wtsp.png"
-          alt="WhatsApp"
-          class="header-icon whatsapp-btn-icon"
-        />
-      </a>
 
       <button class="back-client-btn" (click)="volverSelector()">
         ← Cambiar modo
@@ -180,7 +170,7 @@
 
             <ng-template #microphoneIcon>
               <img
-                src="/mic.png"
+                src="mic.png"
                 alt="Micrófono"
                 class="mic-btn-icon"
               />
@@ -212,12 +202,16 @@
     >
       <div class="mara-card">
 
-      <div class="mara-avatar-box">
+      <div
+        class="mara-avatar-box"
+        [class.has-live-video]="hasMaraVideo"
+      >
 
         <img
-          src="/mara-simli.png"
+          src="mara-simli.png"
           alt="Mara asistente virtual"
           class="mara-avatar-base"
+          (error)="useImageFallback($event, 'mara.png')"
         />
 
         <div
@@ -233,6 +227,20 @@
         <div class="mara-mouth" 
         *ngIf="isMaraSpeaking && !isMaraAvatarActive"></div>
 
+        <div
+          class="mara-activity"
+          [class.speaking]="isMaraSpeaking"
+          [class.listening]="isMaraListening && !isMaraSpeaking"
+          *ngIf="isMaraSpeaking || isMaraListening || isMaraAvatarConnecting"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="mara-activity-dot" aria-hidden="true"></span>
+          <span>
+            {{ isMaraSpeaking ? 'Mara está hablando' : (isMaraAvatarConnecting ? 'Conectando' : 'Mara está escuchando') }}
+          </span>
+        </div>
+
       </div>
 
         <div class="mara-info">
@@ -241,7 +249,11 @@
           <span>{{ retellStatus }}</span>
         </div>
 
-        <div class="mara-waves" *ngIf="!isMaraAvatarActive && (isMaraSpeaking || isMaraListening || isMaraAvatarConnecting)">
+        <div
+          class="mara-waves"
+          *ngIf="isMaraSpeaking || isMaraListening || isMaraAvatarConnecting"
+          aria-hidden="true"
+        >
           <span></span><span></span><span></span><span></span><span></span>
         </div>
 

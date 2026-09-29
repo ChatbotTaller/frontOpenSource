@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../core/services/chatbot.service';
 import { RetellWebClient } from 'retell-client-js-sdk';
@@ -20,7 +20,7 @@ interface ChatMessage {
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
-export class ChatComponent implements OnInit, AfterViewChecked {
+export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef;
   @ViewChild('maraVideo') maraVideoRef!: ElementRef<HTMLElement>;
@@ -58,9 +58,11 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   retellStatus = 'Lista para hablar';
 
   private livekitRoom: Room | null = null;
+  private maraCallAttempt = 0;
 
   isMaraAvatarActive = false;
   isMaraAvatarConnecting = false;
+  hasMaraVideo = false;
 
   messages: ChatMessage[] = [];
 
@@ -90,6 +92,16 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     }
   }
 
+  ngOnDestroy(): void {
+    this.maraCallAttempt += 1;
+    void this.disposeMaraAvatarRoom(this.livekitRoom);
+    window.speechSynthesis.cancel();
+
+    if (this.recognition) {
+      this.recognition.abort?.();
+    }
+  }
+
   private scrollToBottom(): void {
     try {
       const el = this.messagesContainer.nativeElement;
@@ -101,6 +113,15 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     const el = event.target as HTMLTextAreaElement;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+  }
+
+  useImageFallback(event: Event, fallbackSrc: string): void {
+    const image = event.target as HTMLImageElement;
+
+    if (image.dataset['fallbackApplied'] === 'true') return;
+
+    image.dataset['fallbackApplied'] = 'true';
+    image.src = fallbackSrc;
   }
 
   private getSessionId(): string {
@@ -624,48 +645,171 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.sendMessage();
   }
 
-    async startMaraAvatarCall(): Promise<void> {
+  private removeTrackElements(track: Track): void {
+    track.detach().forEach(element => {
+      element.pause();
+      element.srcObject = null;
+      element.remove();
+    });
+  }
+
+  private cleanupMaraMediaElements(): void {
+    const container = this.maraVideoRef?.nativeElement;
+
+    container?.querySelectorAll('video').forEach(video => {
+      video.pause();
+      video.srcObject = null;
+      video.remove();
+    });
+
+    document
+      .querySelectorAll<HTMLAudioElement>('audio[data-mara-audio="true"]')
+      .forEach(audio => {
+        audio.pause();
+        audio.srcObject = null;
+        audio.remove();
+      });
+
+    this.hasMaraVideo = false;
+  }
+
+  private async disposeMaraAvatarRoom(room: Room | null): Promise<void> {
+    if (!room) {
+      this.cleanupMaraMediaElements();
+      return;
+    }
+
+    room.removeAllListeners();
+
+    room.remoteParticipants.forEach(participant => {
+      participant.trackPublications.forEach(publication => {
+        if (publication.track) {
+          this.removeTrackElements(publication.track);
+        }
+      });
+    });
+
+    try {
+      await room.disconnect(true);
+    } catch (error) {
+      console.warn('No se pudo cerrar completamente la sala de Mara:', error);
+    }
+
+    if (this.livekitRoom === room) {
+      this.livekitRoom = null;
+    }
+
+    this.cleanupMaraMediaElements();
+  }
+
+  async startMaraAvatarCall(): Promise<void> {
     if (this.isMaraAvatarActive || this.isMaraAvatarConnecting) return;
 
+    const attemptId = ++this.maraCallAttempt;
+
+    await this.disposeMaraAvatarRoom(this.livekitRoom);
+
+    if (attemptId !== this.maraCallAttempt) return;
+
     this.isMaraAvatarConnecting = true;
+    this.isMaraSpeaking = false;
+    this.isMaraListening = false;
+    this.hasMaraVideo = false;
     this.retellStatus = 'Conectando con Mara IA...';
 
     window.speechSynthesis.cancel();
 
-    const roomName = `mara-room-${this.getSessionId()}`;
-    const participantName = `cliente-${this.getSessionId()}`;
+    const sessionId = this.getSessionId();
+    const callId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const roomName = `mara-room-${sessionId}--${callId}`;
+    const participantName = `cliente-${sessionId}-${callId}`;
 
     this.chatbotService.createLivekitToken(roomName, participantName).subscribe({
       next: async (data) => {
+        if (attemptId !== this.maraCallAttempt) return;
+
+        let room: Room | null = null;
+
         try {
-          this.livekitRoom = new Room({
+          const activeRoom = new Room({
             adaptiveStream: true,
-            dynacast: true
+            dynacast: true,
+            disconnectOnPageLeave: true
           });
 
-          this.livekitRoom.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+          room = activeRoom;
+          this.livekitRoom = activeRoom;
+
+          activeRoom.on(RoomEvent.TrackSubscribed, (track) => {
+            if (this.livekitRoom !== activeRoom || attemptId !== this.maraCallAttempt) {
+              this.removeTrackElements(track);
+              return;
+            }
+
             if (track.kind === Track.Kind.Video) {
               const videoElement = track.attach() as HTMLVideoElement;
               videoElement.autoplay = true;
               videoElement.playsInline = true;
-              videoElement.muted = false;
+              videoElement.muted = true;
 
               const container = this.maraVideoRef?.nativeElement;
 
               if (container) {
                 container.innerHTML = '';
                 container.appendChild(videoElement);
+
+                const showLiveVideo = () => {
+                  if (this.livekitRoom === activeRoom && attemptId === this.maraCallAttempt) {
+                    this.hasMaraVideo = true;
+                  }
+                };
+
+                if (videoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                  showLiveVideo();
+                } else {
+                  videoElement.addEventListener('loadeddata', showLiveVideo, { once: true });
+                }
               }
             }
 
             if (track.kind === Track.Kind.Audio) {
               const audioElement = track.attach() as HTMLAudioElement;
               audioElement.autoplay = true;
+              audioElement.dataset['maraAudio'] = 'true';
+              audioElement.hidden = true;
               document.body.appendChild(audioElement);
             }
           });
 
-          this.livekitRoom.on(RoomEvent.Disconnected, () => {
+          activeRoom.on(RoomEvent.TrackUnsubscribed, (track) => {
+            this.removeTrackElements(track);
+
+            if (track.kind === Track.Kind.Video && this.livekitRoom === activeRoom) {
+              this.hasMaraVideo = false;
+            }
+          });
+
+          activeRoom.on(RoomEvent.ActiveSpeakersChanged, (speakers) => {
+            if (!this.isMaraAvatarActive || this.livekitRoom !== activeRoom) return;
+
+            const localIdentity = activeRoom.localParticipant.identity;
+            const maraIsSpeaking = speakers.some(
+              participant => participant.identity !== localIdentity
+            );
+
+            this.isMaraSpeaking = maraIsSpeaking;
+            this.isMaraListening = !maraIsSpeaking;
+            this.retellStatus = maraIsSpeaking
+              ? 'Mara IA está respondiendo...'
+              : 'Mara IA está escuchando...';
+          });
+
+          activeRoom.on(RoomEvent.Disconnected, () => {
+            if (this.livekitRoom !== activeRoom) return;
+
+            activeRoom.removeAllListeners();
+            this.livekitRoom = null;
+            this.cleanupMaraMediaElements();
             this.isMaraAvatarActive = false;
             this.isMaraAvatarConnecting = false;
             this.isMaraSpeaking = false;
@@ -673,15 +817,27 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
             this.retellStatus = 'Lista para hablar';
           });
 
-          await this.livekitRoom.connect(data.url, data.token);
+          await activeRoom.connect(data.url, data.token);
+
+          if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) {
+            await this.disposeMaraAvatarRoom(activeRoom);
+            return;
+          }
 
           const audioTrack = await createLocalAudioTrack({
             echoCancellation: true,
             noiseSuppression: true,
-            autoGainControl: true
+            autoGainControl: true,
+            channelCount: 1
           });
 
-          await this.livekitRoom.localParticipant.publishTrack(audioTrack);
+          if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) {
+            audioTrack.stop();
+            await this.disposeMaraAvatarRoom(activeRoom);
+            return;
+          }
+
+          await activeRoom.localParticipant.publishTrack(audioTrack);
 
           this.isMaraAvatarActive = true;
           this.isMaraAvatarConnecting = false;
@@ -690,11 +846,23 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
 
         } catch (error) {
           console.error('Error conectando LiveKit:', error);
+
+          if (room) {
+            await this.disposeMaraAvatarRoom(room);
+          }
+
+          if (attemptId !== this.maraCallAttempt) return;
+
+          this.isMaraAvatarActive = false;
           this.isMaraAvatarConnecting = false;
+          this.isMaraSpeaking = false;
+          this.isMaraListening = false;
           this.retellStatus = 'No se pudo conectar con Mara IA';
         }
       },
       error: (error) => {
+        if (attemptId !== this.maraCallAttempt) return;
+
         console.error('Error obteniendo token LiveKit:', error);
         this.isMaraAvatarConnecting = false;
         this.retellStatus = 'No se pudo generar token de Mara IA';
@@ -702,11 +870,12 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     });
   }
 
-    stopMaraAvatarCall(): void {
-    if (this.livekitRoom) {
-      this.livekitRoom.disconnect();
-      this.livekitRoom = null;
-    }
+  async stopMaraAvatarCall(): Promise<void> {
+    this.maraCallAttempt += 1;
+    const room = this.livekitRoom;
+
+    this.livekitRoom = null;
+    await this.disposeMaraAvatarRoom(room);
 
     this.isMaraAvatarActive = false;
     this.isMaraAvatarConnecting = false;
@@ -715,12 +884,13 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.retellStatus = 'Lista para hablar';
   }
 
-  volverSelector(): void {
+  async volverSelector(): Promise<void> {
+    await this.stopMaraAvatarCall();
     this.router.navigate(['/seleccionar-chat']);
   }
 
-  cerrarSesionCliente(): void {
-    this.stopMaraAvatarCall();
+  async cerrarSesionCliente(): Promise<void> {
+    await this.stopMaraAvatarCall();
 
     localStorage.removeItem('usuario_dni');
     localStorage.removeItem('nombre_cliente');
