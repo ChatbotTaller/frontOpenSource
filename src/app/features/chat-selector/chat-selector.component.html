@@ -1,27 +1,87 @@
-<div class="selector-container">
+<main class="selector-page">
+  <div class="ambient-light ambient-light-left" aria-hidden="true"></div>
+  <div class="ambient-light ambient-light-right" aria-hidden="true"></div>
 
-  <div class="selector-card">
+  <section class="selector-shell" aria-labelledby="selector-title">
+    <header class="selector-header">
+      <div class="brand">
+        <div class="brand-logo">
+          <img src="ReyesPolo.jpeg" alt="Logo de Taller Reyes Polo" />
+        </div>
+        <strong>Taller Reyes Polo</strong>
+      </div>
 
-    <h1>Bienvenido</h1>
+      <button
+        type="button"
+        class="logout-button"
+        (click)="cerrarSesion()"
+        aria-label="Cerrar sesión"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M10 17v2H5V5h5v2H7v10h3Zm9-5-4-4v3H9v2h6v3l4-4Z" />
+        </svg>
+        <span>Cerrar sesión</span>
+      </button>
+    </header>
 
-    <h2>{{ nombre }}</h2>
+    <div class="selector-intro">
+      <p class="greeting">
+        <span aria-hidden="true"></span>
+        Hola, {{ primerNombre | titlecase }}
+      </p>
+      <h1 id="selector-title">¿Cómo quieres hablar con Mara?</h1>
+    </div>
 
-    <p>
-      ¿Cómo deseas comunicarte con Mara?
-    </p>
+    <div class="mode-grid" role="group" aria-label="Modos de conversación">
+      <button
+        type="button"
+        class="mode-option text-mode"
+        (click)="irATexto()"
+        aria-label="Abrir chat de texto"
+      >
+        <span class="mode-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H8l-5 3v-3.5A2 2 0 0 1 2 16V5a2 2 0 0 1 2-2Zm0 2v11h1v1.5L7.5 16H20V5H4Zm3 3h10v2H7V8Zm0 4h7v2H7v-2Z" />
+          </svg>
+        </span>
 
-    <button class="mode-btn" (click)="irATexto()">
-       Chat de Texto
-    </button>
+        <span class="option-copy">
+          <strong>Chat de texto</strong>
+          <small>Escribe tus consultas</small>
+        </span>
 
-    <button class="mode-btn voice" (click)="irAVoz()">
-       Chat de Voz
-    </button>
-    
-    <button class="logout-btn" (click)="cerrarSesion()">
-      Cerrar sesión
-    </button>
+        <span class="option-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="m13 5-1.4 1.4 4.6 4.6H4v2h12.2l-4.6 4.6L13 19l7-7-7-7Z" />
+          </svg>
+        </span>
+      </button>
 
-  </div>
+      <button
+        type="button"
+        class="mode-option voice-mode"
+        (click)="irAVoz()"
+        aria-label="Abrir chat de voz en vivo"
+      >
+        <span class="live-badge"><span aria-hidden="true"></span> En vivo</span>
 
-</div>
+        <span class="mode-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21H8v2h8v-2h-3v-3.08A7 7 0 0 0 19 11h-2Z" />
+          </svg>
+        </span>
+
+        <span class="option-copy">
+          <strong>Chat de voz</strong>
+          <small>Conversa en tiempo real</small>
+        </span>
+
+        <span class="option-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="m13 5-1.4 1.4 4.6 4.6H4v2h12.2l-4.6 4.6L13 19l7-7-7-7Z" />
+          </svg>
+        </span>
+      </button>
+    </div>
+  </section>
+</main>

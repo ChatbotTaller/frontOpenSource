@@ -19,6 +19,10 @@ export class ChatSelectorComponent {
     this.nombre = localStorage.getItem('nombre_cliente') || 'Cliente';
   }
 
+  get primerNombre(): string {
+    return this.nombre.trim().split(/\s+/)[0] || 'Cliente';
+  }
+
   irATexto(): void {
     localStorage.setItem('chat_mode', 'texto');
     this.router.navigate(['/chat']);
@@ -30,11 +34,11 @@ export class ChatSelectorComponent {
   }
 
   cerrarSesion(): void {
-  localStorage.removeItem('usuario_dni');
-  localStorage.removeItem('nombre_cliente');
-  localStorage.removeItem('chat_session_id');
-  localStorage.removeItem('chat_mode');
+    localStorage.removeItem('usuario_dni');
+    localStorage.removeItem('nombre_cliente');
+    localStorage.removeItem('chat_session_id');
+    localStorage.removeItem('chat_mode');
 
-  this.router.navigate(['/dni-login']);
-}
+    this.router.navigate(['/dni-login']);
+  }
 }

@@ -198,9 +198,31 @@
       class="mara-panel"
       [class.speaking]="isMaraSpeaking"
       [class.listening]="isMaraListening"
+      [class.user-muted]="isMaraMicrophoneMuted"
       [class.connected]="isMaraAvatarActive"
     >
       <div class="mara-card">
+
+        <div
+          class="mara-status"
+          [class.speaking]="isMaraSpeaking"
+          [class.listening]="isMaraListening && !isMaraSpeaking"
+          [class.muted]="isMaraMicrophoneMuted && !isMaraSpeaking"
+          [class.connecting]="isMaraAvatarConnecting"
+          role="status"
+          aria-live="polite"
+        >
+          <span class="mara-status-dot" aria-hidden="true"></span>
+          <span>
+            {{ isMaraSpeaking
+              ? 'Mara está hablando'
+              : (isMaraAvatarConnecting
+                  ? 'Conectando con Mara'
+                  : (isMaraMicrophoneMuted
+                      ? 'Tu micrófono está apagado'
+                      : (isMaraListening ? 'Mara está escuchando' : 'Lista para hablar'))) }}
+          </span>
+        </div>
 
       <div
         class="mara-avatar-box"
@@ -227,44 +249,51 @@
         <div class="mara-mouth" 
         *ngIf="isMaraSpeaking && !isMaraAvatarActive"></div>
 
-        <div
-          class="mara-activity"
-          [class.speaking]="isMaraSpeaking"
-          [class.listening]="isMaraListening && !isMaraSpeaking"
-          *ngIf="isMaraSpeaking || isMaraListening || isMaraAvatarConnecting"
-          role="status"
-          aria-live="polite"
-        >
-          <span class="mara-activity-dot" aria-hidden="true"></span>
-          <span>
-            {{ isMaraSpeaking ? 'Mara está hablando' : (isMaraAvatarConnecting ? 'Conectando' : 'Mara está escuchando') }}
-          </span>
-        </div>
-
       </div>
 
         <div class="mara-info">
           <h2>Mara</h2>
           <p>Asistente virtual Reyes Polo</p>
-          <span>{{ retellStatus }}</span>
         </div>
 
         <div
           class="mara-waves"
-          *ngIf="isMaraSpeaking || isMaraListening || isMaraAvatarConnecting"
+          [class.active]="isMaraSpeaking || (isMaraListening && !isMaraMicrophoneMuted) || isMaraAvatarConnecting"
           aria-hidden="true"
         >
           <span></span><span></span><span></span><span></span><span></span>
         </div>
 
-        <button
-          class="mara-call-btn"
-          [class.active]="isMaraAvatarActive"
-          [disabled]="isMaraAvatarConnecting"
-          (click)="isMaraAvatarActive ? stopMaraAvatarCall() : startMaraAvatarCall()"
-        >
-          {{ isMaraAvatarConnecting ? 'Conectando...' : (isMaraAvatarActive ? 'Finalizar llamada' : 'Hablar con Mara IA') }}
-        </button>
+        <div class="mara-call-actions" [class.active-call]="isMaraAvatarActive">
+          <button
+            *ngIf="isMaraAvatarActive"
+            type="button"
+            class="mara-mute-btn"
+            [class.muted]="isMaraMicrophoneMuted"
+            [disabled]="isMaraMicrophoneChanging"
+            [attr.aria-pressed]="isMaraMicrophoneMuted"
+            [attr.aria-label]="isMaraMicrophoneMuted ? 'Activar mi micrófono' : 'Silenciar mi micrófono'"
+            (click)="toggleMaraMicrophone()"
+          >
+            <svg *ngIf="!isMaraMicrophoneMuted" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21H8v2h8v-2h-3v-3.08A7 7 0 0 0 19 11h-2Z" />
+            </svg>
+            <svg *ngIf="isMaraMicrophoneMuted" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m4.27 3 16.73 16.73-1.27 1.27-4.19-4.19A6.9 6.9 0 0 1 13 17.92V21h3v2H8v-2h3v-3.08A7 7 0 0 1 5 11h2a5 5 0 0 0 6.96 4.6l-1.43-1.43A3 3 0 0 1 9 11V10.64L3 4.27 4.27 3ZM12 2a3 3 0 0 1 3 3v6c0 .34-.06.67-.16.97L9 6.13V5a3 3 0 0 1 3-3Zm7 9a6.97 6.97 0 0 1-.84 3.32l-1.5-1.5c.22-.57.34-1.18.34-1.82h2Z" />
+            </svg>
+            <span>{{ isMaraMicrophoneMuted ? 'Activar micrófono' : 'Silenciarme' }}</span>
+          </button>
+
+          <button
+            type="button"
+            class="mara-call-btn"
+            [class.active]="isMaraAvatarActive"
+            [disabled]="isMaraAvatarConnecting"
+            (click)="isMaraAvatarActive ? stopMaraAvatarCall() : startMaraAvatarCall()"
+          >
+            {{ isMaraAvatarConnecting ? 'Conectando...' : (isMaraAvatarActive ? 'Finalizar llamada' : 'Hablar con Mara IA') }}
+          </button>
+        </div>
 
       </div>
     </aside>
