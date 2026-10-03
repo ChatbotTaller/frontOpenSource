@@ -1,33 +1,91 @@
-<div class="dni-container">
+<main class="dni-page">
+  <div class="ambient-light ambient-light-left" aria-hidden="true"></div>
+  <div class="ambient-light ambient-light-right" aria-hidden="true"></div>
 
-  <div class="card">
+  <section class="dni-card" aria-labelledby="dni-title">
+    <header class="brand-header">
+      <div class="brand-logo">
+        <img src="ReyesPolo.jpeg" alt="Logo de Taller Reyes Polo" />
+      </div>
 
-    <h1>Taller Reyes Polo</h1>
+      <div class="brand-copy">
+        <span class="eyebrow">Acceso al asistente</span>
+        <strong>Taller Reyes Polo</strong>
+      </div>
+    </header>
 
-    <p class="subtitle">
-      Identifícate con tu DNI
-    </p>
+    <div class="welcome-copy">
+      <h1 id="dni-title">Bienvenido</h1>
+      <p>Ingresa tu DNI para brindarte una atención personalizada.</p>
+    </div>
 
-    <input
-      type="text"
-      maxlength="8"
-      [(ngModel)]="dni"
-      placeholder="Ingrese su DNI"
-      (keydown.enter)="ingresar()"
-    />
+    <form class="dni-form" (ngSubmit)="ingresar()" novalidate>
+      <label for="dni">Documento de identidad</label>
 
-    <button
-      (click)="ingresar()"
-      [disabled]="cargando">
+      <div
+        class="dni-input-shell"
+        [class.has-error]="error"
+        [class.is-complete]="dniCompleto && !error"
+      >
+        <svg class="input-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v12h16V6H4Zm3 2.5A2.5 2.5 0 1 1 7 13a2.5 2.5 0 0 1 0-4.5ZM5 16c.3-1.5 1.47-2.25 3.5-2.25S11.7 14.5 12 16H5Zm9-6h4v1.5h-4V10Zm0 3h4v1.5h-4V13Z" />
+        </svg>
 
-      {{ cargando ? 'Validando...' : 'Continuar' }}
+        <input
+          id="dni"
+          name="dni"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="8"
+          autocomplete="off"
+          enterkeyhint="go"
+          [(ngModel)]="dni"
+          placeholder="Ejemplo: 12345678"
+          [attr.aria-invalid]="error ? 'true' : 'false'"
+          aria-describedby="dni-help dni-error"
+          (keydown)="onDniKeydown($event)"
+          (input)="onDniInput($event)"
+        />
 
-    </button>
+        <span class="digit-counter" aria-hidden="true">{{ dni.length }}/8</span>
+      </div>
 
-    <p class="error" *ngIf="error">
-      {{ error }}
-    </p>
+      <div class="field-support">
+        <span id="dni-help">Solo números, exactamente 8 dígitos</span>
+        <span class="ready-message" *ngIf="dniCompleto && !error">
+          Listo
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m9 16.2-3.5-3.5L4.1 14.1 9 19 20.3 7.7l-1.4-1.4L9 16.2Z" />
+          </svg>
+        </span>
+      </div>
 
-  </div>
+      <button
+        type="submit"
+        class="continue-button"
+        [disabled]="cargando || !dniCompleto"
+      >
+        <span class="button-spinner" *ngIf="cargando" aria-hidden="true"></span>
+        <span>{{ cargando ? 'Validando identidad...' : 'Continuar' }}</span>
+        <svg *ngIf="!cargando" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m13 5-1.4 1.4 4.6 4.6H4v2h12.2l-4.6 4.6L13 19l7-7-7-7Z" />
+        </svg>
+      </button>
 
-</div>
+      <p id="dni-error" class="error-message" *ngIf="error" role="alert">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M11 15h2v2h-2v-2Zm0-8h2v6h-2V7Zm1-5a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z" />
+        </svg>
+        <span>{{ error }}</span>
+      </p>
+    </form>
+
+    <footer class="privacy-note">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2 4 5v6c0 5.05 3.41 9.74 8 11 4.59-1.26 8-5.95 8-11V5l-8-3Zm0 2.13L18 6.4V11c0 3.98-2.55 7.86-6 8.92C8.55 18.86 6 14.98 6 11V6.4l6-2.27ZM11 8h2v5h-2V8Zm0 6.5h2v2h-2v-2Z" />
+      </svg>
+      <span>Tu DNI se utiliza únicamente para identificar tu atención.</span>
+    </footer>
+  </section>
+</main>

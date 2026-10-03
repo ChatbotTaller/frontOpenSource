@@ -364,6 +364,13 @@
             <button (click)="mesSiguiente()">Mes siguiente →</button>
           </div>
 
+          <div class="calendar-legend" aria-label="Estados de las citas">
+            <span class="calendar-legend-item pending">Pendiente</span>
+            <span class="calendar-legend-item confirmed">Confirmada</span>
+            <span class="calendar-legend-item completed">Completada</span>
+            <span class="calendar-legend-item cancelled">Cancelada</span>
+          </div>
+
           <div class="calendar-weekdays">
             <div>Dom</div>
             <div>Lun</div>
@@ -382,11 +389,13 @@
                 <div
                   class="appointment"
                   *ngFor="let cita of day.citas"
+                  [ngClass]="'appointment-' + cita.estado"
                   [attr.data-cita-id]="cita.id"
                 >
                   <span>{{ cita.hora | slice:0:5 }}</span>
                   <small>{{ cita.cliente_nombre }}</small>
                   <small>{{ cita.motivo }}</small>
+                  <span class="appointment-status">{{ cita.estado | titlecase }}</span>
                 </div>
               </ng-container>
             </div>

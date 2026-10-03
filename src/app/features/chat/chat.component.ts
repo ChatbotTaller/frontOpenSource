@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked }
 import { FormsModule } from '@angular/forms';
 import { ChatbotService } from '../../core/services/chatbot.service';
 import { RetellWebClient } from 'retell-client-js-sdk';
-import { Room, RoomEvent, Track, createLocalAudioTrack } from 'livekit-client';
+import { LocalAudioTrack, Room, RoomEvent, Track, createLocalAudioTrack } from 'livekit-client';
 import { Router } from '@angular/router';
 
 interface ChatMessage {
@@ -58,10 +58,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   retellStatus = 'Lista para hablar';
 
   private livekitRoom: Room | null = null;
+  private maraMicrophoneTrack: LocalAudioTrack | null = null;
   private maraCallAttempt = 0;
 
   isMaraAvatarActive = false;
   isMaraAvatarConnecting = false;
+  isMaraMicrophoneMuted = false;
+  isMaraMicrophoneChanging = false;
   hasMaraVideo = false;
 
   messages: ChatMessage[] = [];
@@ -675,6 +678,9 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
 
   private async disposeMaraAvatarRoom(room: Room | null): Promise<void> {
     if (!room) {
+      this.maraMicrophoneTrack = null;
+      this.isMaraMicrophoneMuted = false;
+      this.isMaraMicrophoneChanging = false;
       this.cleanupMaraMediaElements();
       return;
     }
@@ -699,6 +705,9 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
       this.livekitRoom = null;
     }
 
+    this.maraMicrophoneTrack = null;
+    this.isMaraMicrophoneMuted = false;
+    this.isMaraMicrophoneChanging = false;
     this.cleanupMaraMediaElements();
   }
 
@@ -714,6 +723,8 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.isMaraAvatarConnecting = true;
     this.isMaraSpeaking = false;
     this.isMaraListening = false;
+    this.isMaraMicrophoneMuted = false;
+    this.isMaraMicrophoneChanging = false;
     this.hasMaraVideo = false;
     this.retellStatus = 'Conectando con Mara IA...';
 
@@ -798,10 +809,12 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
             );
 
             this.isMaraSpeaking = maraIsSpeaking;
-            this.isMaraListening = !maraIsSpeaking;
+            this.isMaraListening = !maraIsSpeaking && !this.isMaraMicrophoneMuted;
             this.retellStatus = maraIsSpeaking
               ? 'Mara IA está respondiendo...'
-              : 'Mara IA está escuchando...';
+              : (this.isMaraMicrophoneMuted
+                  ? 'Tu micrófono está silenciado'
+                  : 'Mara IA está escuchando...');
           });
 
           activeRoom.on(RoomEvent.Disconnected, () => {
@@ -814,6 +827,9 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
             this.isMaraAvatarConnecting = false;
             this.isMaraSpeaking = false;
             this.isMaraListening = false;
+            this.maraMicrophoneTrack = null;
+            this.isMaraMicrophoneMuted = false;
+            this.isMaraMicrophoneChanging = false;
             this.retellStatus = 'Lista para hablar';
           });
 
@@ -839,6 +855,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
 
           await activeRoom.localParticipant.publishTrack(audioTrack);
 
+          this.maraMicrophoneTrack = audioTrack;
           this.isMaraAvatarActive = true;
           this.isMaraAvatarConnecting = false;
           this.isMaraListening = true;
@@ -857,6 +874,9 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
           this.isMaraAvatarConnecting = false;
           this.isMaraSpeaking = false;
           this.isMaraListening = false;
+          this.maraMicrophoneTrack = null;
+          this.isMaraMicrophoneMuted = false;
+          this.isMaraMicrophoneChanging = false;
           this.retellStatus = 'No se pudo conectar con Mara IA';
         }
       },
@@ -870,6 +890,39 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     });
   }
 
+  async toggleMaraMicrophone(): Promise<void> {
+    const microphoneTrack = this.maraMicrophoneTrack;
+
+    if (!this.isMaraAvatarActive || !microphoneTrack || this.isMaraMicrophoneChanging) {
+      return;
+    }
+
+    this.isMaraMicrophoneChanging = true;
+
+    try {
+      if (this.isMaraMicrophoneMuted) {
+        await microphoneTrack.unmute();
+        this.isMaraMicrophoneMuted = false;
+        this.isMaraListening = !this.isMaraSpeaking;
+        this.retellStatus = this.isMaraSpeaking
+          ? 'Mara IA está respondiendo...'
+          : 'Mara IA está escuchando...';
+      } else {
+        await microphoneTrack.mute();
+        this.isMaraMicrophoneMuted = true;
+        this.isMaraListening = false;
+        this.retellStatus = this.isMaraSpeaking
+          ? 'Mara IA está respondiendo...'
+          : 'Tu micrófono está silenciado';
+      }
+    } catch (error) {
+      console.error('No se pudo cambiar el estado del micrófono:', error);
+      this.retellStatus = 'No se pudo cambiar el micrófono';
+    } finally {
+      this.isMaraMicrophoneChanging = false;
+    }
+  }
+
   async stopMaraAvatarCall(): Promise<void> {
     this.maraCallAttempt += 1;
     const room = this.livekitRoom;
@@ -881,6 +934,9 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.isMaraAvatarConnecting = false;
     this.isMaraSpeaking = false;
     this.isMaraListening = false;
+    this.maraMicrophoneTrack = null;
+    this.isMaraMicrophoneMuted = false;
+    this.isMaraMicrophoneChanging = false;
     this.retellStatus = 'Lista para hablar';
   }
 

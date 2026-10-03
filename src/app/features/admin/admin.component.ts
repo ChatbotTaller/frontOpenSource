@@ -87,7 +87,9 @@ export class AdminComponent implements OnInit {
   loadCitas(): void {
     this.adminService.getCitas().subscribe({
       next: (data) => {
-        this.citas = data;
+        this.citas = Array.isArray(data)
+          ? [...data].sort((a: any, b: any) => Number(b.id) - Number(a.id))
+          : [];
         this.generarCalendario();
         this.loading = false;
 
@@ -138,13 +140,13 @@ export class AdminComponent implements OnInit {
             ],
             backgroundColor: [
               'rgba(251, 191, 36, 0.75)',
-              'rgba(52, 211, 153, 0.75)',  
+              'rgba(37, 99, 235, 0.75)',
               'rgba(34, 197, 94, 0.75)',   
               'rgba(248, 113, 113, 0.75)'  
             ],
             borderColor: [
               'rgba(251, 191, 36, 1)',
-              'rgba(52, 211, 153, 1)',
+              'rgba(96, 165, 250, 1)',
               'rgba(34, 197, 94, 1)',
               'rgba(248, 113, 113, 1)'
             ],
@@ -322,10 +324,12 @@ export class AdminComponent implements OnInit {
     for (let day = 1; day <= totalDays; day++) {
       const fecha = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-      const citasDelDia = this.citas.filter((c: any) => {
-        const fechaCita = this.normalizarFecha(c.fecha);
-        return fechaCita === fecha;
-      });
+      const citasDelDia = this.citas
+        .filter((c: any) => {
+          const fechaCita = this.normalizarFecha(c.fecha);
+          return fechaCita === fecha;
+        })
+        .sort((a: any, b: any) => String(a.hora).localeCompare(String(b.hora)));
 
       this.calendarDays.push({
         day,
