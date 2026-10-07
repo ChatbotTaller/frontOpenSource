@@ -38,6 +38,8 @@ export class AdminComponent implements OnInit {
 
   currentDate = new Date();
   calendarDays: any[] = [];
+  filtroEstadoCalendario = '';
+  diaSeleccionadoCalendario: string | null = null;
 
   metricasVoz: any = {
     total_voz: 0,
@@ -327,14 +329,16 @@ export class AdminComponent implements OnInit {
       const citasDelDia = this.citas
         .filter((c: any) => {
           const fechaCita = this.normalizarFecha(c.fecha);
-          return fechaCita === fecha;
+          return fechaCita === fecha &&
+            (this.filtroEstadoCalendario === '' || c.estado === this.filtroEstadoCalendario);
         })
         .sort((a: any, b: any) => String(a.hora).localeCompare(String(b.hora)));
 
       this.calendarDays.push({
         day,
         fecha,
-        citas: citasDelDia
+        citas: citasDelDia,
+        citasVistaPrevia: citasDelDia.slice(0, 2)
       });
     }
   }
@@ -351,9 +355,19 @@ export class AdminComponent implements OnInit {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  seleccionarDiaCalendario(fecha: string): void {
+    this.diaSeleccionadoCalendario = fecha === this.diaSeleccionadoCalendario ? null : fecha;
+  }
+
+  get citasDiaSeleccionadoCalendario(): any[] {
+    return this.calendarDays.find(day => day?.fecha === this.diaSeleccionadoCalendario)?.citas || [];
+  }
+
   mesAnterior(): void {
+    this.currentDate.setDate(1);
     this.currentDate.setMonth(this.currentDate.getMonth() - 1);
     this.currentDate = new Date(this.currentDate);
+    this.diaSeleccionadoCalendario = null;
 
     this.mesSeleccionado = this.currentDate.getMonth();
     this.anioSeleccionado = this.currentDate.getFullYear();
@@ -362,8 +376,10 @@ export class AdminComponent implements OnInit {
   }
 
   mesSiguiente(): void {
+    this.currentDate.setDate(1);
     this.currentDate.setMonth(this.currentDate.getMonth() + 1);
     this.currentDate = new Date(this.currentDate);
+    this.diaSeleccionadoCalendario = null;
 
     this.mesSeleccionado = this.currentDate.getMonth();
     this.anioSeleccionado = this.currentDate.getFullYear();
@@ -380,6 +396,7 @@ export class AdminComponent implements OnInit {
 
   irAFechaCalendario(): void {
     this.currentDate = new Date(this.anioSeleccionado, this.mesSeleccionado, 1);
+    this.diaSeleccionadoCalendario = null;
     this.generarCalendario();
   }
 

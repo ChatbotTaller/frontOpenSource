@@ -1,6 +1,12 @@
 const { Builder, By, until } = require('selenium-webdriver');
 // require('chromedriver');
 
+const TEST_DNI = process.env.TEST_DNI;
+
+if (!/^\d{8}$/.test(TEST_DNI || '')) {
+  throw new Error('Configura TEST_DNI con ocho dígitos antes de ejecutar Selenium.');
+}
+
 async function pruebaChatbot() {
   const driver = await new Builder().forBrowser('chrome').build();
 
@@ -12,7 +18,7 @@ async function pruebaChatbot() {
       10000
     );
 
-    await inputDni.sendKeys('19331864');
+    await inputDni.sendKeys(TEST_DNI);
 
     const botonContinuar = await driver.findElement(By.css('button'));
     await botonContinuar.click();

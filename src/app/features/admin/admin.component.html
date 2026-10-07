@@ -364,11 +364,27 @@
             <button (click)="mesSiguiente()">Mes siguiente →</button>
           </div>
 
-          <div class="calendar-legend" aria-label="Estados de las citas">
-            <span class="calendar-legend-item pending">Pendiente</span>
-            <span class="calendar-legend-item confirmed">Confirmada</span>
-            <span class="calendar-legend-item completed">Completada</span>
-            <span class="calendar-legend-item cancelled">Cancelada</span>
+          <div class="calendar-toolbar">
+            <div class="calendar-legend" aria-label="Estados de las citas">
+              <span class="calendar-legend-item pending">Pendiente</span>
+              <span class="calendar-legend-item confirmed">Confirmada</span>
+              <span class="calendar-legend-item completed">Completada</span>
+              <span class="calendar-legend-item cancelled">Cancelada</span>
+            </div>
+            <label class="calendar-status-filter">
+              Estado
+              <select
+                [(ngModel)]="filtroEstadoCalendario"
+                (ngModelChange)="generarCalendario()"
+                data-testid="calendario-estado"
+              >
+                <option value="">Todos</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="confirmada">Confirmadas</option>
+                <option value="completada">Completadas</option>
+                <option value="cancelada">Canceladas</option>
+              </select>
+            </label>
           </div>
 
           <div class="calendar-weekdays">
@@ -384,22 +400,74 @@
           <div class="calendar-grid">
             <div class="calendar-day empty" *ngFor="let day of calendarDays">
               <ng-container *ngIf="day">
-                <strong>{{ day.day }}</strong>
+                <button
+                  type="button"
+                  class="calendar-day-heading"
+                  [class.selected]="diaSeleccionadoCalendario === day.fecha"
+                  [attr.aria-label]="'Ver citas del ' + day.fecha"
+                  [attr.aria-expanded]="diaSeleccionadoCalendario === day.fecha"
+                  (click)="seleccionarDiaCalendario(day.fecha)"
+                >
+                  <strong>{{ day.day }}</strong>
+                  <span *ngIf="day.citas.length" class="calendar-day-count">
+                    {{ day.citas.length }} {{ day.citas.length === 1 ? 'cita' : 'citas' }}
+                  </span>
+                </button>
 
                 <div
-                  class="appointment"
-                  *ngFor="let cita of day.citas"
+                  class="calendar-preview"
+                  *ngFor="let cita of day.citasVistaPrevia"
                   [ngClass]="'appointment-' + cita.estado"
                   [attr.data-cita-id]="cita.id"
                 >
-                  <span>{{ cita.hora | slice:0:5 }}</span>
-                  <small>{{ cita.cliente_nombre }}</small>
-                  <small>{{ cita.motivo }}</small>
-                  <span class="appointment-status">{{ cita.estado | titlecase }}</span>
+                  <span class="calendar-preview-time">{{ cita.hora | slice:0:5 }}</span>
+                  <small class="calendar-preview-name" [title]="cita.cliente_nombre">
+                    {{ cita.cliente_nombre || 'Cliente sin nombre' }}
+                  </small>
                 </div>
+                <button
+                  *ngIf="day.citas.length > 2"
+                  type="button"
+                  class="calendar-more"
+                  (click)="diaSeleccionadoCalendario = day.fecha"
+                >
+                  +{{ day.citas.length - 2 }} más · Ver todas
+                </button>
               </ng-container>
             </div>
           </div>
+
+          <section
+            *ngIf="diaSeleccionadoCalendario"
+            class="calendar-day-detail"
+            aria-label="Detalle de citas del día"
+          >
+            <div class="calendar-day-detail-header">
+              <div>
+                <h3>Citas del {{ diaSeleccionadoCalendario }}</h3>
+                <p>{{ citasDiaSeleccionadoCalendario.length }} con el filtro seleccionado</p>
+              </div>
+              <button type="button" (click)="diaSeleccionadoCalendario = null">Cerrar</button>
+            </div>
+            <p *ngIf="citasDiaSeleccionadoCalendario.length === 0" class="calendar-day-empty">
+              No hay citas para esta fecha y estado.
+            </p>
+            <div class="calendar-day-detail-list" *ngIf="citasDiaSeleccionadoCalendario.length > 0">
+              <div
+                class="calendar-detail-appointment"
+                *ngFor="let cita of citasDiaSeleccionadoCalendario"
+                [ngClass]="'appointment-' + cita.estado"
+                [attr.data-cita-id]="cita.id"
+              >
+                <strong>{{ cita.hora | slice:0:5 }}</strong>
+                <div>
+                  <span>{{ cita.cliente_nombre || 'Cliente sin nombre' }}</span>
+                  <small>{{ cita.motivo || 'Sin motivo registrado' }}</small>
+                </div>
+                <span class="appointment-status">{{ cita.estado | titlecase }}</span>
+              </div>
+            </div>
+          </section>
         </section>
 
       </section>
