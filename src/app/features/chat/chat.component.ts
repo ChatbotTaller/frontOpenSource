@@ -137,6 +137,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return sessionId;
   }
 
+  private handleClientUnauthorized(error: any): boolean {
+    if (error?.status !== 401 && error?.status !== 403) return false;
+
+    localStorage.removeItem('chat_session_id');
+    localStorage.removeItem('nombre_cliente');
+    localStorage.removeItem('chat_mode');
+    void this.router.navigate(['/dni-login']);
+    return true;
+  }
+
   private getStorageKey(): string {
     return `chat_messages_${this.getSessionId()}`;
   }
@@ -490,6 +500,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
       },
       error: (error) => {
         console.error('Error:', error);
+        if (this.handleClientUnauthorized(error)) return;
         this.addMessage(
           'No puedo conectarme al servidor. Verifica tu conexión.',
           'bot',
@@ -730,12 +741,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
 
     window.speechSynthesis.cancel();
 
-    const sessionId = this.getSessionId();
-    const callId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    const roomName = `mara-room-${sessionId}--${callId}`;
-    const participantName = `cliente-${sessionId}-${callId}`;
-
-    this.chatbotService.createLivekitToken(roomName, participantName).subscribe({
+    this.chatbotService.createLivekitToken().subscribe({
       next: async (data) => {
         if (attemptId !== this.maraCallAttempt) return;
 
@@ -884,6 +890,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
         if (attemptId !== this.maraCallAttempt) return;
 
         console.error('Error obteniendo token LiveKit:', error);
+        if (this.handleClientUnauthorized(error)) return;
         this.isMaraAvatarConnecting = false;
         this.retellStatus = 'No se pudo generar token de Mara IA';
       }
@@ -948,7 +955,6 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
   async cerrarSesionCliente(): Promise<void> {
     await this.stopMaraAvatarCall();
 
-    localStorage.removeItem('usuario_dni');
     localStorage.removeItem('nombre_cliente');
     localStorage.removeItem('chat_session_id');
     localStorage.removeItem('chat_mode');

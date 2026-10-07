@@ -4,11 +4,17 @@ const path = require('path');
 
 const FRONTEND_URL = 'http://localhost:4200';
 
-const DNI = '72111167';
-const TELEFONO = '987654321';
-const VEHICULO = 'Toyota Yaris 2020';
-const SERVICIO = 'Mantenimiento preventivo';
-const FECHA_HORA = '2026-07-16 10:00';
+const DNI = process.env.TEST_DNI;
+const TELEFONO = process.env.TEST_PHONE;
+const VEHICULO = process.env.TEST_VEHICLE || 'Vehículo de prueba';
+const SERVICIO = process.env.TEST_SERVICE || 'Mantenimiento preventivo';
+const FECHA_HORA = process.env.TEST_APPOINTMENT_AT;
+
+if (!/^\d{8}$/.test(DNI || '') || !/^9\d{8}$/.test(TELEFONO || '') || !FECHA_HORA) {
+  throw new Error(
+    'Configura TEST_DNI, TEST_PHONE y TEST_APPOINTMENT_AT antes de ejecutar Selenium.'
+  );
+}
 
 async function contarMensajesBot(driver) {
   return driver.executeScript(`

@@ -5,8 +5,12 @@ const path = require('path');
 
 const FRONTEND_URL = 'http://localhost:4200';
 
-const ADMIN_USUARIO = process.env.ADMIN_USUARIO || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '123456';
+const ADMIN_USUARIO = process.env.ADMIN_USUARIO;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_USUARIO || !ADMIN_PASSWORD) {
+  throw new Error('Configura ADMIN_USUARIO y ADMIN_PASSWORD antes de ejecutar Selenium.');
+}
 
 async function guardarCaptura(driver, nombreArchivo) {
   const carpeta = path.join(__dirname, 'evidencias');

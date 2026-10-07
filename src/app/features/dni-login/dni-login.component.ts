@@ -86,10 +86,7 @@ export class DniLoginComponent {
           return;
         }
 
-        localStorage.setItem(
-          'usuario_dni',
-          JSON.stringify(resp.usuario)
-        );
+        localStorage.removeItem('usuario_dni');
 
         localStorage.setItem(
           'chat_session_id',

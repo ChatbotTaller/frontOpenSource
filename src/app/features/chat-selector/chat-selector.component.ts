@@ -34,7 +34,6 @@ export class ChatSelectorComponent {
   }
 
   cerrarSesion(): void {
-    localStorage.removeItem('usuario_dni');
     localStorage.removeItem('nombre_cliente');
     localStorage.removeItem('chat_session_id');
     localStorage.removeItem('chat_mode');

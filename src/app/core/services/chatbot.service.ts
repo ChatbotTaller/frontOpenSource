@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -28,13 +28,18 @@ export class ChatbotService {
 
   constructor(private http: HttpClient) {}
 
+  private getClientHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      Authorization: `Bearer ${this.getSessionId()}`
+    });
+  }
+
   sendMessage(message: string, canal: 'texto' | 'voz' = 'texto'): Observable<ChatbotResponse> {
     return this.http.post<ChatbotResponse>(this.backendUrl, {
       user_message: message,
-      session_id: this.getSessionId(),
-      canal,
-      stt_exitoso: canal === 'voz' ? 1 : 1,
-      tts_exitoso: canal === 'voz' ? 1 : 1
+      canal
+    }, {
+      headers: this.getClientHeaders()
     });
   }
 
@@ -42,8 +47,9 @@ export class ChatbotService {
     return this.http.post<any>(
       `${this.backendBaseUrl}/retell/create-web-call`,
       {
-        session_id: this.getSessionId()
-      }
+        canal: 'voz-retell'
+      },
+      { headers: this.getClientHeaders() }
     );
   }
 
@@ -57,10 +63,17 @@ export class ChatbotService {
     return sessionId;
   }
 
-  createLivekitToken(roomName: string, participantName: string) {
-    return this.http.post<any>(`${this.backendBaseUrl}/livekit/token`, {
-      roomName,
-      participantName
+  validateSession(): Observable<any> {
+    return this.http.get<any>(`${this.backendBaseUrl}/cliente/sesion`, {
+      headers: this.getClientHeaders()
     });
+  }
+
+  createLivekitToken() {
+    return this.http.post<any>(
+      `${this.backendBaseUrl}/livekit/token`,
+      {},
+      { headers: this.getClientHeaders() }
+    );
   }
 }
