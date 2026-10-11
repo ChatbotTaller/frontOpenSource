@@ -45,9 +45,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 24px 0;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 24px max(20px, calc((100vw - 1160px) / 2));
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
-  background: rgba(11, 11, 13, 0.94);
+  background: rgba(17, 17, 19, 0.97);
   backdrop-filter: blur(14px);
 }
 
@@ -401,11 +403,8 @@
     flex: 0 0 auto;
     justify-content: flex-start;
     gap: 12px;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
     padding-right: max(14px, calc((100vw - 600px) / 2));
     padding-left: max(14px, calc((100vw - 600px) / 2));
-    background: #111112;
   }
   .brand { min-width: 0; margin-right: auto; }
   .menu-toggle {
