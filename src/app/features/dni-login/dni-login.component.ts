@@ -43,6 +43,7 @@ export class DniLoginComponent implements AfterViewInit {
     this.privacyError = '';
     if (!this.privacyDialog.nativeElement.open) {
       this.privacyDialog.nativeElement.showModal();
+      this.privacyDialog.nativeElement.querySelector<HTMLElement>('#privacy-modal-title')?.focus({ preventScroll: true });
     }
   }
 

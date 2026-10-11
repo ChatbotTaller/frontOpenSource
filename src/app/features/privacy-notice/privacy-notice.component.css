@@ -10,7 +10,7 @@
   isolation: isolate;
   min-height: 100vh;
   min-height: 100dvh;
-  overflow: hidden;
+  overflow: clip;
   color: #f6f3f1;
   background:
     linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
@@ -38,12 +38,17 @@
 }
 
 .site-header {
+  position: sticky;
+  z-index: 40;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
   padding: 24px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(11, 11, 13, 0.94);
+  backdrop-filter: blur(14px);
 }
 
 .brand {
@@ -382,8 +387,26 @@
 }
 
 @media (max-width: 760px) {
-  .privacy-shell { width: min(100% - 28px, 600px); }
-  .site-header { justify-content: flex-start; gap: 12px; }
+  .privacy-page { height: 100dvh; min-height: 0; overflow: hidden; }
+  .privacy-shell {
+    display: flex;
+    flex-direction: column;
+    width: min(100% - 28px, 600px);
+    height: 100dvh;
+    min-height: 0;
+  }
+  .site-header {
+    position: relative;
+    top: auto;
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding-right: max(14px, calc((100vw - 600px) / 2));
+    padding-left: max(14px, calc((100vw - 600px) / 2));
+    background: #111112;
+  }
   .brand { min-width: 0; margin-right: auto; }
   .menu-toggle {
     display: grid;
@@ -399,7 +422,17 @@
     cursor: pointer;
   }
   .menu-toggle:disabled { cursor: default; }
-  .privacy-layout { display: block; padding-top: 24px; }
+  .privacy-layout {
+    display: block;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-top: 24px;
+    scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    scrollbar-width: thin;
+  }
   .policy-sidebar {
     position: fixed;
     z-index: 60;
@@ -453,10 +486,11 @@
   .sidebar-bottom { margin-top: auto; }
   .policy-module p { text-align: left; }
   .decision { flex-direction: column; align-items: stretch; }
+  .page-footer { display: none; }
 }
 
 @media (max-width: 440px) {
-  .site-header { padding: 17px 0; }
+  .site-header { padding-block: 17px; }
   .brand img { width: 42px; height: 42px; }
   .brand strong { font-size: 14px; }
   .brand span { font-size: 10px; }

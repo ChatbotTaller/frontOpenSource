@@ -465,6 +465,8 @@
   letter-spacing: -0.025em;
 }
 
+.privacy-dialog h2:focus { outline: none; }
+
 .modal-intro,
 .modal-details p {
   margin: 0;
@@ -511,8 +513,7 @@
 }
 
 .modal-check:focus-within {
-  outline: 2px solid #ff8b7e;
-  outline-offset: 3px;
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .modal-check input {
@@ -522,6 +523,11 @@
   margin: 1px 0 0;
   accent-color: #ef3124;
   cursor: pointer;
+}
+
+.modal-check input:focus-visible {
+  outline: 2px solid #ffb3aa;
+  outline-offset: 3px;
 }
 
 .modal-error {
