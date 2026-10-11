@@ -7,9 +7,11 @@ import { authGuard } from './core/guards/auth.guard';
 import { DniLoginComponent } from './features/dni-login/dni-login.component';
 import { ChatSelectorComponent } from './features/chat-selector/chat-selector.component';
 import { clienteAuthGuard } from './core/guards/cliente-auth.guard';
+import { PrivacyNoticeComponent } from './features/privacy-notice/privacy-notice.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dni-login', pathMatch: 'full' },
+  { path: 'privacidad', component: PrivacyNoticeComponent },
   { path: 'dni-login', component: DniLoginComponent },
   { path: 'seleccionar-chat', component: ChatSelectorComponent, canActivate: [clienteAuthGuard] },
   { path: 'chat', component: ChatComponent, canActivate: [clienteAuthGuard] },

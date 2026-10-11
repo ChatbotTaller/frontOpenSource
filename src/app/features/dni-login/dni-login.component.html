@@ -19,6 +19,12 @@
       <p>Ingresa tu DNI para brindarte una atención personalizada.</p>
     </div>
 
+    <div class="privacy-declined" *ngIf="privacyRejected" role="status">
+      <strong>Tu decisión fue respetada.</strong>
+      <p>No solicitaremos tu DNI ni habilitaremos el asistente mientras no decidas continuar.</p>
+      <button type="button" (click)="openPrivacyDialog()">Revisar mi decisión</button>
+    </div>
+
     <form class="dni-form" (ngSubmit)="ingresar()" novalidate>
       <label for="dni">Documento de identidad</label>
 
@@ -41,6 +47,7 @@
           autocomplete="off"
           enterkeyhint="go"
           [(ngModel)]="dni"
+          [disabled]="!privacyAccepted"
           placeholder="Ejemplo: 12345678"
           [attr.aria-invalid]="error ? 'true' : 'false'"
           aria-describedby="dni-help dni-error"
@@ -64,7 +71,7 @@
       <button
         type="submit"
         class="continue-button"
-        [disabled]="cargando || !dniCompleto"
+        [disabled]="!privacyAccepted || cargando || !dniCompleto"
       >
         <span class="button-spinner" *ngIf="cargando" aria-hidden="true"></span>
         <span>{{ cargando ? 'Validando identidad...' : 'Continuar' }}</span>
@@ -85,7 +92,31 @@
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 2 4 5v6c0 5.05 3.41 9.74 8 11 4.59-1.26 8-5.95 8-11V5l-8-3Zm0 2.13L18 6.4V11c0 3.98-2.55 7.86-6 8.92C8.55 18.86 6 14.98 6 11V6.4l6-2.27ZM11 8h2v5h-2V8Zm0 6.5h2v2h-2v-2Z" />
       </svg>
-      <span>Tu DNI se utiliza únicamente para identificar tu atención.</span>
+      <span>Usamos tu DNI para verificar tu identidad. <a routerLink="/privacidad">Consulta el aviso de privacidad</a>.</span>
     </footer>
   </section>
+
+  <dialog #privacyDialog class="privacy-dialog" aria-labelledby="privacy-modal-title" aria-describedby="privacy-modal-summary" (cancel)="preventDialogDismiss($event)" (close)="handleDialogClose()">
+    <div class="modal-brand">
+      <img src="ReyesPolo.jpeg" alt="" />
+      <span>Taller Reyes Polo <small>Asistente Mara</small></span>
+    </div>
+    <span class="modal-eyebrow">Tu privacidad importa</span>
+    <h2 id="privacy-modal-title">Antes de comenzar, hablemos de tus datos.</h2>
+    <p id="privacy-modal-summary" class="modal-intro">Usaremos tu DNI para verificar tu identidad. Si utilizas Mara, también se procesarán tus consultas y los datos necesarios para gestionar tus citas.</p>
+    <div class="modal-details">
+      <p>Pueden intervenir servicios de verificación, inteligencia artificial, voz y alojamiento. Los plazos de conservación están pendientes de confirmación.</p>
+      <a routerLink="/privacidad">Leer la política de privacidad completa <span aria-hidden="true">↗</span></a>
+    </div>
+    <label class="modal-check" for="privacy-choice">
+      <input id="privacy-choice" type="checkbox" [(ngModel)]="privacyChecked" (change)="privacyError = ''" />
+      <span>He leído este resumen y deseo continuar con la identificación y el uso de Mara según el aviso de privacidad.</span>
+    </label>
+    <p class="modal-error" *ngIf="privacyError" role="alert">{{ privacyError }}</p>
+    <div class="modal-actions">
+      <button type="button" class="modal-reject" (click)="rejectPrivacy()">Rechazar</button>
+      <button type="button" class="modal-accept" [disabled]="!privacyChecked" (click)="acceptPrivacy()">Aceptar y continuar <span aria-hidden="true">→</span></button>
+    </div>
+    <p class="modal-footnote">No se solicita autorización para publicidad. Esta elección se conserva solo durante esta sesión del navegador y no acredita por sí sola consentimiento legal.</p>
+  </dialog>
 </main>

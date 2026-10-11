@@ -1,0 +1,119 @@
+<main class="privacy-page">
+  <div class="page-glow" aria-hidden="true"></div>
+
+  <div class="privacy-shell">
+    <header class="site-header">
+      <button
+        #menuToggle
+        type="button"
+        class="menu-toggle"
+        aria-label="Abrir secciones del aviso"
+        aria-controls="privacy-sidebar"
+        [attr.aria-expanded]="sidebarOpen"
+        [disabled]="sidebarOpen"
+        (click)="openSidebar()"
+      ><span aria-hidden="true">☰</span></button>
+      <div class="brand">
+        <img src="ReyesPolo.jpeg" alt="Logo de Taller Reyes Polo" />
+        <div>
+          <strong>Taller Reyes Polo</strong>
+          <span>Asistente virtual Mara</span>
+        </div>
+      </div>
+      <a class="header-return" routerLink="/dni-login" aria-label="Volver al ingreso" [attr.inert]="sidebarOpen ? '' : null"><span aria-hidden="true">←</span><span class="header-return-label"> Volver al ingreso</span></a>
+    </header>
+
+    <div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="closeSidebar()" aria-hidden="true"></div>
+
+    <div class="privacy-layout" id="politica-completa">
+      <aside id="privacy-sidebar" class="policy-sidebar" [class.open]="sidebarOpen" aria-label="Navegación de privacidad">
+        <div class="sidebar-heading">
+          <button #menuClose type="button" class="menu-close" aria-label="Cerrar secciones" (click)="closeSidebar()">×</button>
+          <span class="sidebar-kicker">Aviso de privacidad</span>
+          <h2>Contenido</h2>
+          <p>Elige el tema que deseas consultar.</p>
+        </div>
+        <nav class="section-menu" aria-label="Secciones del aviso">
+          <button
+            *ngFor="let section of sections"
+            type="button"
+            class="section-button"
+            [class.active]="activeSection === section.id"
+            [attr.aria-current]="activeSection === section.id ? 'true' : null"
+            (click)="selectSection(section.id)"
+          >
+            <span class="section-number">{{ section.number }}</span>
+            <span>{{ section.label }}</span>
+            <span class="section-chevron" aria-hidden="true">›</span>
+          </button>
+        </nav>
+        <div class="sidebar-bottom">
+          <span>Versión {{ privacyConfig.version }}</span>
+          <a routerLink="/dni-login">← Volver al ingreso</a>
+        </div>
+      </aside>
+
+      <div class="policy-content" [attr.inert]="sidebarOpen ? '' : null">
+      <article class="policy" id="section-content" aria-labelledby="policy-title">
+        <div class="policy-heading">
+          <span>Información para clientes</span>
+          <h2 id="policy-title" tabindex="-1">Aviso de privacidad</h2>
+          <p>Consulta cada apartado antes de decidir si deseas ingresar tu DNI y utilizar Mara.</p>
+        </div>
+
+        <section class="policy-module" *ngIf="activeSection === 'responsable'" id="responsable" aria-labelledby="responsable-title">
+          <div class="module-heading"><span aria-hidden="true">01</span><h3 id="responsable-title">Responsable</h3></div>
+          <p>La atención mediante Mara corresponde a Taller Reyes Polo, en Trujillo, La Libertad. Para consultas o solicitudes sobre datos personales, escribe a <a [href]="'mailto:' + privacyConfig.contactEmail">{{ privacyConfig.contactEmail }}</a>.<span *ngIf="privacyConfig.contactIsProvisional"> Este correo es provisional y está sujeto a la autorización del responsable del taller.</span></p>
+        </section>
+
+        <section class="policy-module" *ngIf="activeSection === 'datos'" id="datos" aria-labelledby="datos-title">
+          <div class="module-heading"><span aria-hidden="true">02</span><h3 id="datos-title">Datos y finalidad</h3></div>
+          <p>La aplicación utiliza tu DNI para verificar tu identidad y obtiene el nombre asociado. Si decides proporcionarlos, también puede registrar teléfono, vehículo, motivo de atención y datos de citas. Se procesan los mensajes de texto o voz, las respuestas y métricas operativas para atender consultas, mantener el contexto y gestionar citas.</p>
+          <p>Este aviso no solicita autorización para mensajes publicitarios.</p>
+        </section>
+
+        <section class="policy-module" *ngIf="activeSection === 'proveedores'" id="proveedores" aria-labelledby="proveedores-title">
+          <div class="module-heading"><span aria-hidden="true">03</span><h3 id="proveedores-title">Servicios que participan</h3></div>
+          <p>El sistema consulta API Perú durante la verificación del DNI. Según la función que utilices, pueden intervenir OpenAI para respuestas y voz, LiveKit y Simli para la experiencia de voz, y Google Calendar para sincronizar citas. El frontend y el backend están desplegados en Vercel y Railway, respectivamente.</p>
+        </section>
+
+        <section class="policy-module" *ngIf="activeSection === 'seguridad'" id="seguridad" aria-labelledby="seguridad-title">
+          <div class="module-heading"><span aria-hidden="true">04</span><h3 id="seguridad-title">Acceso y almacenamiento</h3></div>
+          <p>El chat utiliza una sesión de cliente distinta del acceso administrativo. El navegador conserva el identificador de sesión y el nombre para mantener tu acceso hasta que cierres sesión o borres los datos del sitio. Las conversaciones, citas y métricas se registran en el sistema. Los servicios de producción se comunican mediante HTTPS.</p>
+        </section>
+
+        <section class="policy-module" *ngIf="activeSection === 'conservacion'" id="conservacion" aria-labelledby="conservacion-title">
+          <div class="module-heading"><span aria-hidden="true">05</span><h3 id="conservacion-title">Conservación y solicitudes</h3></div>
+          <p>Los plazos de conservación del DNI, las citas y las conversaciones están pendientes de confirmación por el responsable del taller. La aplicación no tiene configurada actualmente una eliminación automática de conversaciones, citas y métricas.</p>
+          <p>Para solicitar acceso, rectificación, cancelación u oposición respecto de tus datos, utiliza el correo provisional indicado arriba. El taller deberá verificar tu identidad antes de responder a una solicitud sobre información personal.</p>
+        </section>
+
+        <section class="policy-module" *ngIf="activeSection === 'referencias'" id="referencias" aria-labelledby="referencias-title">
+          <div class="module-heading"><span aria-hidden="true">06</span><h3 id="referencias-title">Referencia normativa</h3></div>
+          <p>Este aviso toma como referencia la Ley N.º 29733 y su Reglamento, aprobado por el Decreto Supremo N.º 016-2024-JUS. La existencia de esta pantalla no demuestra por sí sola el cumplimiento integral de esas normas ni sustituye la revisión del responsable del tratamiento.</p>
+          <div class="legal-links">
+            <a href="https://www.gob.pe/institucion/anpd/normas-legales/2018427-29733-2011" target="_blank" rel="noopener noreferrer">Consultar la Ley N.º 29733</a>
+            <a href="https://www.gob.pe/institucion/anpd/normas-legales/6554453-16-2024-jus" target="_blank" rel="noopener noreferrer">Consultar el Reglamento</a>
+          </div>
+        </section>
+      </article>
+
+      <aside class="decision" aria-labelledby="decision-title">
+        <div class="decision-copy">
+          <span class="decision-kicker">Tu decisión</span>
+          <h2 id="decision-title">Tú decides cómo continuar.</h2>
+          <p>Vuelve al ingreso para aceptar o rechazar antes de proporcionar tu DNI.</p>
+          <p class="decision-footnote">Esta página informa sobre el tratamiento de datos; no demuestra por sí sola el cumplimiento legal integral.</p>
+        </div>
+
+        <a class="continue-button" routerLink="/dni-login">
+          Volver al ingreso
+          <span aria-hidden="true">→</span>
+        </a>
+      </aside>
+      </div>
+    </div>
+
+    <footer class="page-footer" [attr.inert]="sidebarOpen ? '' : null">Taller Reyes Polo · Atención digital responsable</footer>
+  </div>
+</main>

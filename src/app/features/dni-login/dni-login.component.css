@@ -355,6 +355,234 @@
   fill: rgba(245, 242, 238, 0.42);
 }
 
+.privacy-note a {
+  color: #ff8b7e;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.privacy-note a:hover {
+  color: #fff;
+}
+
+.privacy-declined {
+  margin: 0 0 18px;
+  padding: 15px 17px;
+  border: 1px solid rgba(255, 122, 108, 0.28);
+  border-radius: 14px;
+  background: rgba(239, 49, 36, 0.07);
+}
+
+.privacy-declined strong {
+  color: #f5f2ee;
+  font-size: 13px;
+}
+
+.privacy-declined p {
+  margin: 6px 0 11px;
+  color: #bdb3af;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.privacy-declined button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #ff8b7e;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.privacy-dialog {
+  box-sizing: border-box;
+  width: min(calc(100% - 32px), 510px);
+  max-height: min(90dvh, 760px);
+  margin: auto;
+  overflow-y: auto;
+  padding: clamp(20px, 3vw, 26px);
+  border: 1px solid rgba(255, 111, 95, 0.27);
+  border-radius: 24px;
+  color: #f5f2ee;
+  background: linear-gradient(150deg, #242123, #141416 70%);
+  box-shadow: 0 38px 100px rgba(0, 0, 0, 0.68);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.privacy-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.77);
+  backdrop-filter: blur(7px);
+}
+
+.modal-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 19px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.modal-brand img {
+  width: 42px;
+  height: 42px;
+  padding: 3px;
+  border: 1px solid rgba(239, 49, 36, 0.54);
+  border-radius: 12px;
+  background: #080808;
+  object-fit: cover;
+}
+
+.modal-brand small {
+  display: block;
+  margin-top: 2px;
+  color: #aca19e;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.modal-eyebrow {
+  color: #ff8275;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.privacy-dialog h2 {
+  margin: 10px 0 10px;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: clamp(26px, 5vw, 34px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.modal-intro,
+.modal-details p {
+  margin: 0;
+  color: #c5bab6;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.modal-details {
+  margin: 14px 0;
+  padding: 13px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.modal-details a {
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 10px;
+  color: #ff9287;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.modal-details a:hover,
+.modal-details a:focus-visible {
+  color: #fff;
+}
+
+.modal-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 14px;
+  color: #eee8e5;
+  font-size: 12px;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+.modal-check:focus-within {
+  outline: 2px solid #ff8b7e;
+  outline-offset: 3px;
+}
+
+.modal-check input {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  margin: 1px 0 0;
+  accent-color: #ef3124;
+  cursor: pointer;
+}
+
+.modal-error {
+  margin: 10px 0 0;
+  color: #ffaaa0;
+  font-size: 12px;
+}
+
+.modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.45fr;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.modal-actions button {
+  min-height: 48px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.modal-actions button:focus-visible,
+.privacy-declined button:focus-visible {
+  outline: 3px solid #ff8b7e;
+  outline-offset: 3px;
+}
+
+.modal-reject {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.045);
+  color: #e4dcda;
+}
+
+.modal-accept {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #f05a4e;
+  background: linear-gradient(135deg, #f13a2a, #bd1e14);
+  color: #fff;
+}
+
+.modal-accept:disabled {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: #333034;
+  color: #968d8b;
+  cursor: not-allowed;
+}
+
+.modal-footnote {
+  margin: 11px 0 0;
+  color: #a99e9a;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
 @keyframes cardEnter {
   from {
     opacity: 0;
@@ -419,6 +647,18 @@
   .privacy-note {
     margin-top: 21px;
     padding-top: 17px;
+  }
+
+  .privacy-dialog {
+    width: min(calc(100% - 24px), 510px);
+    max-height: calc(100dvh - 24px);
+    padding: 22px;
+    border-radius: 20px;
+  }
+
+  .modal-brand {
+    margin-bottom: 19px;
+    padding-bottom: 15px;
   }
 }
 
