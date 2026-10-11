@@ -102,11 +102,11 @@
       <span>Taller Reyes Polo <small>Asistente Mara</small></span>
     </div>
     <span class="modal-eyebrow">Tu privacidad importa</span>
-    <h2 id="privacy-modal-title">Antes de comenzar, hablemos de tus datos.</h2>
+    <h2 id="privacy-modal-title" tabindex="-1">Antes de comenzar, hablemos de tus datos.</h2>
     <p id="privacy-modal-summary" class="modal-intro">Usaremos tu DNI para verificar tu identidad. Si utilizas Mara, también se procesarán tus consultas y los datos necesarios para gestionar tus citas.</p>
     <div class="modal-details">
-      <p>Pueden intervenir servicios de verificación, inteligencia artificial, voz y alojamiento. Los plazos de conservación están pendientes de confirmación.</p>
-      <a routerLink="/privacidad">Leer la política de privacidad completa <span aria-hidden="true">↗</span></a>
+      <p>Conoce los servicios que participan y cómo tratamos tus datos. Los plazos de conservación aún están pendientes de confirmación.</p>
+      <a routerLink="/privacidad">Leer el aviso completo <span aria-hidden="true">↗</span></a>
     </div>
     <label class="modal-check" for="privacy-choice">
       <input id="privacy-choice" type="checkbox" [(ngModel)]="privacyChecked" (change)="privacyError = ''" />
@@ -117,6 +117,6 @@
       <button type="button" class="modal-reject" (click)="rejectPrivacy()">Rechazar</button>
       <button type="button" class="modal-accept" [disabled]="!privacyChecked" (click)="acceptPrivacy()">Aceptar y continuar <span aria-hidden="true">→</span></button>
     </div>
-    <p class="modal-footnote">No se solicita autorización para publicidad. Esta elección se conserva solo durante esta sesión del navegador y no acredita por sí sola consentimiento legal.</p>
+    <p class="modal-footnote">Tu elección dura solo esta sesión. No solicitamos autorización para publicidad ni afirmamos consentimiento legal completo.</p>
   </dialog>
 </main>
