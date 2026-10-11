@@ -1,27 +1,85 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { DniService } from '../../core/services/dni.service';
+import { PrivacyNoticeService } from '../../core/services/privacy-notice.service';
 
 @Component({
   selector: 'app-dni-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './dni-login.component.html',
   styleUrl: './dni-login.component.css'
 })
-export class DniLoginComponent {
+export class DniLoginComponent implements AfterViewInit {
+  @ViewChild('privacyDialog') privacyDialog!: ElementRef<HTMLDialogElement>;
 
   dni = '';
   cargando = false;
   error = '';
+  privacyAccepted: boolean;
+  privacyChecked = false;
+  privacyRejected = false;
+  privacyError = '';
 
   constructor(
     private dniService: DniService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private privacyNotice: PrivacyNoticeService
+  ) {
+    this.privacyAccepted = privacyNotice.hasAcceptedNotice();
+  }
+
+  ngAfterViewInit(): void {
+    if (!this.privacyAccepted) {
+      this.openPrivacyDialog();
+    }
+  }
+
+  openPrivacyDialog(): void {
+    this.privacyChecked = false;
+    this.privacyError = '';
+    if (!this.privacyDialog.nativeElement.open) {
+      this.privacyDialog.nativeElement.showModal();
+    }
+  }
+
+  preventDialogDismiss(event: Event): void {
+    event.preventDefault();
+  }
+
+  handleDialogClose(): void {
+    if (!this.privacyAccepted) {
+      this.privacyRejected = true;
+    }
+  }
+
+  acceptPrivacy(): void {
+    if (!this.privacyChecked) {
+      this.privacyError = 'Marca la casilla para continuar.';
+      return;
+    }
+
+    if (!this.privacyNotice.acceptNotice()) {
+      this.privacyError = 'No se pudo guardar tu elección en este navegador. Revisa su configuración e inténtalo de nuevo.';
+      return;
+    }
+
+    this.privacyAccepted = true;
+    this.privacyRejected = false;
+    this.privacyError = '';
+    this.privacyDialog.nativeElement.close();
+  }
+
+  rejectPrivacy(): void {
+    this.privacyNotice.clearChoice();
+    this.privacyAccepted = false;
+    this.privacyRejected = true;
+    this.privacyChecked = false;
+    this.privacyDialog.nativeElement.close();
+  }
 
   get dniCompleto(): boolean {
     return /^\d{8}$/.test(this.dni);
@@ -65,7 +123,7 @@ export class DniLoginComponent {
   }
 
   ingresar(): void {
-    if (this.cargando) {
+    if (this.cargando || !this.privacyAccepted) {
       return;
     }
 
