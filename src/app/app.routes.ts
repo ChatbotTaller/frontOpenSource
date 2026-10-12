@@ -8,6 +8,7 @@ import { DniLoginComponent } from './features/dni-login/dni-login.component';
 import { ChatSelectorComponent } from './features/chat-selector/chat-selector.component';
 import { clienteAuthGuard } from './core/guards/cliente-auth.guard';
 import { PrivacyNoticeComponent } from './features/privacy-notice/privacy-notice.component';
+import { PasswordRecoveryComponent } from './features/password-recovery/password-recovery.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dni-login', pathMatch: 'full' },
@@ -16,6 +17,8 @@ export const routes: Routes = [
   { path: 'seleccionar-chat', component: ChatSelectorComponent, canActivate: [clienteAuthGuard] },
   { path: 'chat', component: ChatComponent, canActivate: [clienteAuthGuard] },
   { path: 'login', component: LoginComponent },
+  { path: 'recuperar-acceso', component: PasswordRecoveryComponent, data: { mode: 'request' } },
+  { path: 'restablecer-clave', component: PasswordRecoveryComponent, data: { mode: 'reset' } },
   { path: 'admin', component: AdminComponent, canActivate: [authGuard] },
   { path: 'metricas', component: MetricasComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: 'dni-login' }

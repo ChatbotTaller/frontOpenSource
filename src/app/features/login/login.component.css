@@ -121,6 +121,39 @@
 
 .login-card input::placeholder { color: rgba(240,237,232,0.2); }
 
+.password-field { position: relative; }
+.login-card .password-field input { padding-right: 52px; }
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  transform: translateY(-50%);
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(240,237,232,0.55);
+  cursor: pointer;
+}
+.password-toggle:hover { color: #f0ede8; background: rgba(255,255,255,0.06); }
+.password-toggle:focus-visible { outline: 2px solid #ff8f80; outline-offset: 2px; }
+.password-toggle svg { width: 19px; height: 19px; }
+
+.recovery-link {
+  display: block;
+  width: fit-content;
+  margin: 2px 0 12px auto;
+  color: #ff8f80;
+  font: 600 12px 'Inter', system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.recovery-link:hover { color: #fff; text-decoration: underline; }
+.recovery-link:focus-visible { outline: 2px solid #ff8f80; outline-offset: 4px; border-radius: 2px; }
+
 .login-btn {
   width: 100%;
   padding: 13px;
