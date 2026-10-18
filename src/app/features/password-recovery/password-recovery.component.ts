@@ -64,9 +64,11 @@ export class PasswordRecoveryComponent implements OnInit {
         this.loading = false;
         this.done = true;
       },
-      error: () => {
+      error: response => {
         this.loading = false;
-        this.error = 'No se pudo procesar la solicitud. Inténtalo más tarde.';
+        this.error = response?.status === 404
+          ? 'Correo no registrado. Ingresa el correo de recuperación asociado al administrador.'
+          : response?.error?.error || 'No se pudo procesar la solicitud. Inténtalo más tarde.';
       }
     });
   }

@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { firstValueFrom, timeout } from 'rxjs';
+import { ChatbotService } from '../../core/services/chatbot.service';
 
 @Component({
   selector: 'app-chat-selector',
@@ -13,7 +15,7 @@ export class ChatSelectorComponent {
 
   nombre = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private chatbotService: ChatbotService) {}
 
   ngOnInit(): void {
     this.nombre = localStorage.getItem('nombre_cliente') || 'Cliente';
@@ -33,7 +35,16 @@ export class ChatSelectorComponent {
     this.router.navigate(['/chat']);
   }
 
-  cerrarSesion(): void {
+  async cerrarSesion(): Promise<void> {
+    const sessionId = localStorage.getItem('chat_session_id');
+    if (sessionId) {
+      try {
+        await firstValueFrom(this.chatbotService.logoutClient().pipe(timeout(5000)));
+      } catch {
+        // Se borra igualmente la copia local si el backend no está disponible.
+      }
+      localStorage.removeItem(`chat_messages_${sessionId}`);
+    }
     localStorage.removeItem('nombre_cliente');
     localStorage.removeItem('chat_session_id');
     localStorage.removeItem('chat_mode');
