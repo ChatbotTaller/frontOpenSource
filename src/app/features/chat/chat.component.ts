@@ -5,6 +5,7 @@ import { ChatbotService } from '../../core/services/chatbot.service';
 import { RetellWebClient } from 'retell-client-js-sdk';
 import { LocalAudioTrack, Room, RoomEvent, Track, createLocalAudioTrack } from 'livekit-client';
 import { Router } from '@angular/router';
+import { firstValueFrom, timeout } from 'rxjs';
 
 interface ChatMessage {
   text: string;
@@ -140,6 +141,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private handleClientUnauthorized(error: any): boolean {
     if (error?.status !== 401 && error?.status !== 403) return false;
 
+    const sessionId = localStorage.getItem('chat_session_id');
+    if (sessionId) localStorage.removeItem(`chat_messages_${sessionId}`);
     localStorage.removeItem('chat_session_id');
     localStorage.removeItem('nombre_cliente');
     localStorage.removeItem('chat_mode');
@@ -954,6 +957,16 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
 
   async cerrarSesionCliente(): Promise<void> {
     await this.stopMaraAvatarCall();
+
+    const sessionId = localStorage.getItem('chat_session_id');
+    if (sessionId) {
+      try {
+        await firstValueFrom(this.chatbotService.logoutClient().pipe(timeout(5000)));
+      } catch {
+        // Se borra igualmente la copia local si el backend no está disponible.
+      }
+      localStorage.removeItem(`chat_messages_${sessionId}`);
+    }
 
     localStorage.removeItem('nombre_cliente');
     localStorage.removeItem('chat_session_id');

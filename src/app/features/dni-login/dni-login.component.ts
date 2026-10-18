@@ -23,6 +23,7 @@ export class DniLoginComponent implements AfterViewInit {
   privacyChecked = false;
   privacyRejected = false;
   privacyError = '';
+  privacySaving = false;
 
   constructor(
     private dniService: DniService,
@@ -63,15 +64,21 @@ export class DniLoginComponent implements AfterViewInit {
       return;
     }
 
-    if (!this.privacyNotice.acceptNotice()) {
-      this.privacyError = 'No se pudo guardar tu elección en este navegador. Revisa su configuración e inténtalo de nuevo.';
-      return;
-    }
-
-    this.privacyAccepted = true;
-    this.privacyRejected = false;
-    this.privacyError = '';
-    this.privacyDialog.nativeElement.close();
+    if (this.privacySaving) return;
+    this.privacySaving = true;
+    this.privacyNotice.acceptNotice().subscribe({
+      next: () => {
+        this.privacySaving = false;
+        this.privacyAccepted = true;
+        this.privacyRejected = false;
+        this.privacyError = '';
+        this.privacyDialog.nativeElement.close();
+      },
+      error: () => {
+        this.privacySaving = false;
+        this.privacyError = 'No se pudo registrar tu elección. Comprueba la conexión e inténtalo de nuevo.';
+      }
+    });
   }
 
   rejectPrivacy(): void {
@@ -160,7 +167,15 @@ export class DniLoginComponent implements AfterViewInit {
         this.router.navigate(['/seleccionar-chat']);
       },
 
-      error: () => {
+      error: (err) => {
+        if (err?.status === 403) {
+          this.privacyNotice.clearChoice();
+          this.privacyAccepted = false;
+          this.openPrivacyDialog();
+          this.error = 'Tu confirmación del aviso caducó. Revísalo para continuar.';
+          this.cargando = false;
+          return;
+        }
         this.error = 'No se pudo validar el DNI.';
         this.cargando = false;
       }

@@ -69,6 +69,12 @@ export class ChatbotService {
     });
   }
 
+  logoutClient(): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(`${this.backendBaseUrl}/cliente/logout`, {}, {
+      headers: this.getClientHeaders()
+    });
+  }
+
   createLivekitToken() {
     return this.http.post<any>(
       `${this.backendBaseUrl}/livekit/token`,
