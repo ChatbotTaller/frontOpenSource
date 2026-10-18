@@ -92,7 +92,7 @@
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 2 4 5v6c0 5.05 3.41 9.74 8 11 4.59-1.26 8-5.95 8-11V5l-8-3Zm0 2.13L18 6.4V11c0 3.98-2.55 7.86-6 8.92C8.55 18.86 6 14.98 6 11V6.4l6-2.27ZM11 8h2v5h-2V8Zm0 6.5h2v2h-2v-2Z" />
       </svg>
-      <span>Usamos tu DNI para verificar tu identidad. <a routerLink="/privacidad">Consulta el aviso de privacidad</a>.</span>
+      <span>Consultamos el nombre asociado al DNI; esto no confirma que seas su titular. <a routerLink="/privacidad">Consulta el aviso de privacidad</a>.</span>
     </footer>
   </section>
 
@@ -103,7 +103,7 @@
     </div>
     <span class="modal-eyebrow">Tu privacidad importa</span>
     <h2 id="privacy-modal-title" tabindex="-1">Antes de comenzar, hablemos de tus datos.</h2>
-    <p id="privacy-modal-summary" class="modal-intro">Usaremos tu DNI para verificar tu identidad. Si utilizas Mara, también se procesarán tus consultas y los datos necesarios para gestionar tus citas.</p>
+    <p id="privacy-modal-summary" class="modal-intro">Consultaremos el nombre asociado a tu DNI; esta consulta no confirma que seas su titular. Si utilizas Mara, también se procesarán tus consultas y los datos necesarios para gestionar tus citas.</p>
     <div class="modal-details">
       <p>Conoce los servicios que participan y cómo tratamos tus datos. Los plazos de conservación aún están pendientes de confirmación.</p>
       <a routerLink="/privacidad">Leer el aviso completo <span aria-hidden="true">↗</span></a>
@@ -114,8 +114,8 @@
     </label>
     <p class="modal-error" *ngIf="privacyError" role="alert">{{ privacyError }}</p>
     <div class="modal-actions">
-      <button type="button" class="modal-reject" (click)="rejectPrivacy()">Rechazar</button>
-      <button type="button" class="modal-accept" [disabled]="!privacyChecked" (click)="acceptPrivacy()">Aceptar y continuar <span aria-hidden="true">→</span></button>
+      <button type="button" class="modal-reject" [disabled]="privacySaving" (click)="rejectPrivacy()">Rechazar</button>
+      <button type="button" class="modal-accept" [disabled]="!privacyChecked || privacySaving" (click)="acceptPrivacy()">{{ privacySaving ? 'Registrando...' : 'Aceptar y continuar' }} <span aria-hidden="true">→</span></button>
     </div>
     <p class="modal-footnote">Tu elección dura solo esta sesión. No solicitamos autorización para publicidad ni afirmamos consentimiento legal completo.</p>
   </dialog>

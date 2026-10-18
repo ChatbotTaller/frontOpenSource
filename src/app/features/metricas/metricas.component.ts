@@ -308,18 +308,20 @@ export class MetricasComponent implements OnInit {
   }
 
   exportarExcel(): void {
+    const safeCell = (value: unknown): string => {
+      const text = String(value ?? '').slice(0, 200);
+      return /^[\s\u0000-\u001f]*[=+\-@]/.test(text) ? `'${text}` : text;
+    };
     const data = this.metricas.map((m: any) => ({
-      Pregunta: m.pregunta,
-      Respuesta: m.respuesta,
-      Intent_Detectado: m.intencion_detectada,
-      Intent_Correcto: m.intencion_correcta,
+      Intent_Detectado: safeCell(m.intencion_detectada),
+      Intent_Correcto: safeCell(m.intencion_correcta),
       Respuesta_Correcta: m.respuesta_correcta === 1 ? 'Correcta' : 'Incorrecta',
       Tiempo_ms: m.tiempo_respuesta_ms,
-      Fecha: m.fecha
+      Fecha: safeCell(m.fecha)
     }));
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
-    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:G1');
+    const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1:E1');
 
     for (let row = range.s.r; row <= range.e.r; row++) {
       for (let col = range.s.c; col <= range.e.c; col++) {
@@ -358,8 +360,6 @@ export class MetricasComponent implements OnInit {
     }
 
     worksheet['!cols'] = [
-      { wch: 35 },
-      { wch: 55 },
       { wch: 18 },
       { wch: 18 },
       { wch: 20 },
@@ -372,6 +372,6 @@ export class MetricasComponent implements OnInit {
       SheetNames: ['Metricas']
     };
 
-    XLSX.writeFile(workbook, 'metricas_chatbot.xlsx');
+    XLSX.writeFile(workbook, 'metricas_chatbot_sin_conversaciones.xlsx');
   }
 }
