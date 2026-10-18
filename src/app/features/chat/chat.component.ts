@@ -61,6 +61,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private livekitRoom: Room | null = null;
   private maraMicrophoneTrack: LocalAudioTrack | null = null;
   private maraCallAttempt = 0;
+  private maraDisposals = new WeakMap<Room, Promise<void>>();
+  private cancelMaraReadyWait: (() => void) | null = null;
+  isMaraAvatarStopping = false;
 
   isMaraAvatarActive = false;
   isMaraAvatarConnecting = false;
@@ -98,6 +101,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnDestroy(): void {
     this.maraCallAttempt += 1;
+    this.cancelMaraReadyWait?.();
     void this.disposeMaraAvatarRoom(this.livekitRoom);
     window.speechSynthesis.cancel();
 
@@ -306,14 +310,6 @@ startListening(): void {
   if (!this.recognition || this.isLoading) return;
 
   try {
-    navigator.mediaDevices?.getUserMedia({
-      audio: {
-        echoCancellation: true,
-        noiseSuppression: true,
-        autoGainControl: true
-      }
-    });
-
     window.speechSynthesis.cancel();
     this.recognition.start();
   } catch (error) {
@@ -365,6 +361,7 @@ stopListeningAndSend(): void {
 
       oscillator.start();
       oscillator.stop(audioContext.currentTime + 0.12);
+      oscillator.onended = () => { void audioContext.close(); };
     } catch {}
   }
 
@@ -487,7 +484,9 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
           this.speakResponse(respuesta);
         }
 
-        if (
+        if (typeof response.appointment_in_progress === 'boolean') {
+          this.enFlujoCita = response.appointment_in_progress;
+        } else if (
           respuesta.includes('Tu cita fue registrada correctamente') ||
           respuesta.includes('cita fue registrada correctamente') ||
           respuesta.includes('Se canceló el proceso de agendamiento')
@@ -579,13 +578,14 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     window.speechSynthesis.cancel();
 
     try {
-      await navigator.mediaDevices.getUserMedia({
+      const permissionStream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true
         }
       });
+      permissionStream.getTracks().forEach(track => track.stop());
 
       this.retellStatus = 'Conectando con Mara...';
 
@@ -691,15 +691,22 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
   }
 
   private async disposeMaraAvatarRoom(room: Room | null): Promise<void> {
-    if (!room) {
+    if (!room) return;
+    const pending = this.maraDisposals.get(room);
+    if (pending) return pending;
+
+    // Release only the media owned by this room, before any asynchronous close.
+    // A late close from an old call must never reset the next call.
+    if (this.livekitRoom === room) {
+      this.livekitRoom = null;
+      this.maraMicrophoneTrack?.stop();
       this.maraMicrophoneTrack = null;
       this.isMaraMicrophoneMuted = false;
       this.isMaraMicrophoneChanging = false;
       this.cleanupMaraMediaElements();
-      return;
     }
-
     room.removeAllListeners();
+    room.localParticipant.trackPublications.forEach(publication => publication.track?.stop());
 
     room.remoteParticipants.forEach(participant => {
       participant.trackPublications.forEach(publication => {
@@ -709,28 +716,50 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
       });
     });
 
-    try {
-      await room.disconnect(true);
-    } catch (error) {
+    const closing = room.disconnect(true).catch(error => {
       console.warn('No se pudo cerrar completamente la sala de Mara:', error);
-    }
+    });
+    this.maraDisposals.set(room, closing);
+    return closing;
+  }
 
-    if (this.livekitRoom === room) {
-      this.livekitRoom = null;
-    }
-
-    this.maraMicrophoneTrack = null;
-    this.isMaraMicrophoneMuted = false;
-    this.isMaraMicrophoneChanging = false;
-    this.cleanupMaraMediaElements();
+  private waitForMaraReady(room: Room, attemptId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const finish = (error?: Error) => {
+        clearTimeout(timer);
+        room.off(RoomEvent.ParticipantAttributesChanged, check);
+        room.off(RoomEvent.TrackSubscribed, check);
+        room.off(RoomEvent.Disconnected, disconnected);
+        if (this.cancelMaraReadyWait === cancel) this.cancelMaraReadyWait = null;
+        error ? reject(error) : resolve();
+      };
+      const cancel = () => finish(new Error('Llamada cancelada'));
+      const disconnected = () => finish(new Error('La sala se desconectó'));
+      const check = () => {
+        if (attemptId !== this.maraCallAttempt || this.livekitRoom !== room) return cancel();
+        const participants = [...room.remoteParticipants.values()];
+        const ready = participants.some(p => ['listening', 'thinking', 'speaking'].includes(p.attributes['lk.agent.state']));
+        const audioReady = participants.some(p => [...p.audioTrackPublications.values()].some(pub => Boolean(pub.track)));
+        if (ready && audioReady) finish();
+      };
+      const timer = setTimeout(() => finish(new Error('Mara no está disponible. Intenta iniciar una nueva llamada.')), 35000);
+      this.cancelMaraReadyWait = cancel;
+      room.on(RoomEvent.ParticipantAttributesChanged, check);
+      room.on(RoomEvent.TrackSubscribed, check);
+      room.on(RoomEvent.Disconnected, disconnected);
+      check();
+    });
   }
 
   async startMaraAvatarCall(): Promise<void> {
-    if (this.isMaraAvatarActive || this.isMaraAvatarConnecting) return;
+    if (this.isMaraAvatarActive || this.isMaraAvatarConnecting || this.isMaraAvatarStopping) return;
 
     const attemptId = ++this.maraCallAttempt;
+    this.isMaraAvatarConnecting = true;
 
-    await this.disposeMaraAvatarRoom(this.livekitRoom);
+    // La liberación local ocurre de inmediato. La desconexión remota puede acabar
+    // en segundo plano sin bloquear el siguiente intento de llamada.
+    void this.disposeMaraAvatarRoom(this.livekitRoom);
 
     if (attemptId !== this.maraCallAttempt) return;
 
@@ -744,11 +773,12 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
 
     window.speechSynthesis.cancel();
 
-    this.chatbotService.createLivekitToken().subscribe({
+    this.chatbotService.createLivekitToken().pipe(timeout(15000)).subscribe({
       next: async (data) => {
         if (attemptId !== this.maraCallAttempt) return;
 
         let room: Room | null = null;
+        let createdMicrophone: LocalAudioTrack | null = null;
 
         try {
           const activeRoom = new Room({
@@ -829,9 +859,8 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
           activeRoom.on(RoomEvent.Disconnected, () => {
             if (this.livekitRoom !== activeRoom) return;
 
-            activeRoom.removeAllListeners();
-            this.livekitRoom = null;
-            this.cleanupMaraMediaElements();
+            this.cancelMaraReadyWait?.();
+            void this.disposeMaraAvatarRoom(activeRoom);
             this.isMaraAvatarActive = false;
             this.isMaraAvatarConnecting = false;
             this.isMaraSpeaking = false;
@@ -842,7 +871,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
             this.retellStatus = 'Lista para hablar';
           });
 
-          await activeRoom.connect(data.url, data.token);
+          await activeRoom.connect(data.url, data.token, { websocketTimeout: 15000, peerConnectionTimeout: 15000 });
 
           if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) {
             await this.disposeMaraAvatarRoom(activeRoom);
@@ -855,6 +884,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
             autoGainControl: true,
             channelCount: 1
           });
+          createdMicrophone = audioTrack;
 
           if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) {
             audioTrack.stop();
@@ -862,15 +892,29 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
             return;
           }
 
-          await activeRoom.localParticipant.publishTrack(audioTrack);
-
           this.maraMicrophoneTrack = audioTrack;
+          await activeRoom.localParticipant.publishTrack(audioTrack);
+          if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) {
+            audioTrack.stop();
+            await this.disposeMaraAvatarRoom(activeRoom);
+            return;
+          }
+          await activeRoom.startAudio();
+          if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) {
+            audioTrack.stop();
+            await this.disposeMaraAvatarRoom(activeRoom);
+            return;
+          }
+          this.retellStatus = 'Esperando a que Mara esté lista...';
+          await this.waitForMaraReady(activeRoom, attemptId);
+          if (attemptId !== this.maraCallAttempt || this.livekitRoom !== activeRoom) return;
           this.isMaraAvatarActive = true;
           this.isMaraAvatarConnecting = false;
           this.isMaraListening = true;
           this.retellStatus = 'Mara IA está escuchando...';
 
         } catch (error) {
+          createdMicrophone?.stop();
           console.error('Error conectando LiveKit:', error);
 
           if (room) {
@@ -886,7 +930,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
           this.maraMicrophoneTrack = null;
           this.isMaraMicrophoneMuted = false;
           this.isMaraMicrophoneChanging = false;
-          this.retellStatus = 'No se pudo conectar con Mara IA';
+          this.retellStatus = 'Mara no está disponible. Puedes intentar una nueva llamada.';
         }
       },
       error: (error) => {
@@ -912,6 +956,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     try {
       if (this.isMaraMicrophoneMuted) {
         await microphoneTrack.unmute();
+        if (this.maraMicrophoneTrack !== microphoneTrack) return;
         this.isMaraMicrophoneMuted = false;
         this.isMaraListening = !this.isMaraSpeaking;
         this.retellStatus = this.isMaraSpeaking
@@ -919,6 +964,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
           : 'Mara IA está escuchando...';
       } else {
         await microphoneTrack.mute();
+        if (this.maraMicrophoneTrack !== microphoneTrack) return;
         this.isMaraMicrophoneMuted = true;
         this.isMaraListening = false;
         this.retellStatus = this.isMaraSpeaking
@@ -929,16 +975,21 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
       console.error('No se pudo cambiar el estado del micrófono:', error);
       this.retellStatus = 'No se pudo cambiar el micrófono';
     } finally {
-      this.isMaraMicrophoneChanging = false;
+      if (this.maraMicrophoneTrack === microphoneTrack) this.isMaraMicrophoneChanging = false;
     }
   }
 
   async stopMaraAvatarCall(): Promise<void> {
+    if (this.isMaraAvatarStopping) return;
+    this.isMaraAvatarStopping = true;
     this.maraCallAttempt += 1;
+    this.cancelMaraReadyWait?.();
     const room = this.livekitRoom;
 
-    this.livekitRoom = null;
-    await this.disposeMaraAvatarRoom(room);
+    this.retellStatus = 'Finalizando llamada...';
+    // No mantenemos el botón bloqueado mientras LiveKit confirma el cierre remoto.
+    // disposeMaraAvatarRoom ya detuvo el micrófono y retiró el contenido local.
+    void this.disposeMaraAvatarRoom(room);
 
     this.isMaraAvatarActive = false;
     this.isMaraAvatarConnecting = false;
@@ -947,6 +998,7 @@ this.chatbotService.sendMessage(text, canalMensaje).subscribe({
     this.maraMicrophoneTrack = null;
     this.isMaraMicrophoneMuted = false;
     this.isMaraMicrophoneChanging = false;
+    this.isMaraAvatarStopping = false;
     this.retellStatus = 'Lista para hablar';
   }
 

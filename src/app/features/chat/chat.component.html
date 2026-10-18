@@ -288,10 +288,10 @@
             type="button"
             class="mara-call-btn"
             [class.active]="isMaraAvatarActive"
-            [disabled]="isMaraAvatarConnecting"
-            (click)="isMaraAvatarActive ? stopMaraAvatarCall() : startMaraAvatarCall()"
+            [disabled]="isMaraAvatarStopping"
+            (click)="isMaraAvatarActive || isMaraAvatarConnecting ? stopMaraAvatarCall() : startMaraAvatarCall()"
           >
-            {{ isMaraAvatarConnecting ? 'Conectando...' : (isMaraAvatarActive ? 'Finalizar llamada' : 'Hablar con Mara IA') }}
+            {{ isMaraAvatarStopping ? 'Finalizando...' : (isMaraAvatarConnecting ? 'Cancelar conexión' : (isMaraAvatarActive ? 'Finalizar llamada' : 'Hablar con Mara IA')) }}
           </button>
         </div>
 
