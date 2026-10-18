@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 interface ChatbotResponse {
   reply: string;
   intent?: string;
+  appointment_in_progress?: boolean;
   response_time_ms?: number;
 }
 
