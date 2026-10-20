@@ -46,6 +46,20 @@
         <b>Métricas de voz</b>
       </button>
 
+      <div class="sidebar-group-label">Análisis del taller</div>
+
+      <button class="sidebar-link" [class.active]="seccionActiva === 'clientes'" (click)="cambiarSeccion('clientes')">
+        <b>Clientes con citas</b>
+      </button>
+
+      <button class="sidebar-link" [class.active]="seccionActiva === 'demanda'" (click)="cambiarSeccion('demanda')">
+        <b>Demanda de servicios</b>
+      </button>
+
+      <button class="sidebar-link" [class.active]="seccionActiva === 'repuestos'" (click)="cambiarSeccion('repuestos')">
+        <b>Repuestos y precios</b>
+      </button>
+
 
     </nav>
 
@@ -58,7 +72,9 @@
   </div>
 
   <!-- MAIN -->
-  <main class="admin-main">
+  <main
+    class="admin-main"
+    [class.compact-client-view]="seccionActiva === 'clientes'">
 
     <!-- TOPBAR -->
     <div class="admin-topbar">
@@ -178,28 +194,22 @@
                 (ngModelChange)="reiniciarPaginacion()"
               />
 
-              <select
-                class="filter-select"
+              <app-combobox
+                class="filter-combobox"
                 [(ngModel)]="filtroEstado"
-                (ngModelChange)="reiniciarPaginacion()">
-                <option value="">Todos los estados</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="confirmada">Confirmadas</option>
-                <option value="completada">Completadas</option>
-                <option value="cancelada">Canceladas</option>
-              </select>
+                (ngModelChange)="reiniciarPaginacion()"
+                [options]="estadoCitaOptions"
+                ariaLabel="Filtrar citas por estado">
+              </app-combobox>
 
-              <select
-                class="filter-select"
+              <app-combobox
+                class="filter-combobox"
                 [(ngModel)]="itemsPorPagina"
                 (ngModelChange)="cambiarItemsPorPagina()"
-                data-testid="citas-items-pagina"
-              >
-
-                <option *ngFor="let opcion of opcionesItemsPorPagina" [value]="opcion">
-                  Mostrar {{ opcion }} citas
-                </option>
-              </select>
+                [options]="itemsPaginaOptions"
+                ariaLabel="Cantidad de citas por página"
+                testId="citas-items-pagina">
+              </app-combobox>
 
             </div>
           </div>
@@ -335,23 +345,19 @@
             <h2>{{ nombreMesActual }}</h2>
 
             <div class="calendar-filter">
-              <select
+              <app-combobox
                 [(ngModel)]="mesSeleccionado"
-                data-testid="calendario-mes"
-              >
-                <option *ngFor="let mes of meses; let i = index" [value]="i">
-                  {{ mes }}
-                </option>
-              </select>
+                [options]="mesOptions"
+                ariaLabel="Mes del calendario"
+                testId="calendario-mes">
+              </app-combobox>
 
-              <select
+              <app-combobox
                 [(ngModel)]="anioSeleccionado"
-                data-testid="calendario-anio"
-              >
-                <option *ngFor="let anio of anios" [value]="anio">
-                  {{ anio }}
-                </option>
-              </select>
+                [options]="anioOptions"
+                ariaLabel="Año del calendario"
+                testId="calendario-anio">
+              </app-combobox>
 
               <button
                 (click)="irAFechaCalendario()"
@@ -373,17 +379,13 @@
             </div>
             <label class="calendar-status-filter">
               Estado
-              <select
+              <app-combobox
                 [(ngModel)]="filtroEstadoCalendario"
                 (ngModelChange)="generarCalendario()"
-                data-testid="calendario-estado"
-              >
-                <option value="">Todos</option>
-                <option value="pendiente">Pendientes</option>
-                <option value="confirmada">Confirmadas</option>
-                <option value="completada">Completadas</option>
-                <option value="cancelada">Canceladas</option>
-              </select>
+                [options]="estadoCalendarioOptions"
+                ariaLabel="Filtrar calendario por estado"
+                testId="calendario-estado">
+              </app-combobox>
             </label>
           </div>
 
@@ -524,6 +526,18 @@
           </div>
         </div>
 
+      </section>
+
+      <section *ngIf="seccionActiva === 'clientes'" class="admin-section">
+        <app-client-activity></app-client-activity>
+      </section>
+
+      <section *ngIf="seccionActiva === 'demanda'" class="admin-section">
+        <app-service-demand></app-service-demand>
+      </section>
+
+      <section *ngIf="seccionActiva === 'repuestos'" class="admin-section">
+        <app-parts-catalog></app-parts-catalog>
       </section>
 
     </div>

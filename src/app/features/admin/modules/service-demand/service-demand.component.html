@@ -1,0 +1,9 @@
+<section class="module-shell">
+  <header class="module-heading"><div><h2>Demanda de servicios</h2><p>Distingue lo que los clientes consultan de lo que finalmente reservan.</p></div><div class="module-filters"><label>Periodo<app-combobox [(ngModel)]="period" (ngModelChange)="load()" [options]="periodOptions" ariaLabel="Periodo de demanda"></app-combobox></label></div></header>
+  <div class="module-state" *ngIf="loading">Analizando consultas y citas…</div><div class="module-state error" *ngIf="error">{{ error }}</div>
+  <ng-container *ngIf="!loading && !error">
+    <div class="insight-banner"><div><span>Más consultado</span><strong>{{ consulted[0]?.name || 'Sin datos suficientes' }}</strong><small>{{ consulted[0]?.total || 0 }} consultas identificadas</small></div><div><span>Más reservado</span><strong>{{ booked[0]?.name || 'Sin datos suficientes' }}</strong><small>{{ booked[0]?.total || 0 }} citas registradas</small></div><div><span>Catálogo analizado</span><strong>{{ summary.service_catalog }} servicios</strong><small>{{ summary.matched_consultations + summary.matched_appointments }} coincidencias</small></div></div>
+    <div class="demand-grid"><article class="module-chart-panel"><div class="panel-heading"><div><h3>Servicios más consultados</h3><p>Preguntas clasificadas como servicios.</p></div></div><div class="chart-frame"><canvas id="consultedServicesChart"></canvas></div><div class="module-state compact" *ngIf="!consulted.length">Aún no hay consultas asociadas al catálogo.</div></article><article class="module-chart-panel"><div class="panel-heading"><div><h3>Servicios más reservados</h3><p>Citas activas agrupadas por servicio.</p></div></div><div class="chart-frame"><canvas id="bookedServicesChart"></canvas></div><div class="module-state compact" *ngIf="!booked.length">Aún no hay citas asociadas al catálogo.</div></article></div>
+    <p class="method-note">{{ methodology }}</p>
+  </ng-container>
+</section>

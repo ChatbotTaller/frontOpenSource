@@ -5,19 +5,23 @@ import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import Chart from 'chart.js/auto';
 import { FormsModule } from '@angular/forms';
+import { ClientActivityComponent } from './modules/client-activity/client-activity.component';
+import { ServiceDemandComponent } from './modules/service-demand/service-demand.component';
+import { PartsCatalogComponent } from './modules/parts-catalog/parts-catalog.component';
+import { ComboboxComponent, ComboboxOption } from '../../shared/ui/combobox/combobox.component';
 
 import * as XLSX from 'xlsx-js-style';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ClientActivityComponent, ServiceDemandComponent, PartsCatalogComponent, ComboboxComponent],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css'
 })
 export class AdminComponent implements OnInit {
 
-  seccionActiva: 'resumen' | 'citas' | 'calendario' | 'voz' = 'resumen';
+  seccionActiva: 'resumen' | 'citas' | 'calendario' | 'voz' | 'clientes' | 'demanda' | 'repuestos' = 'resumen';
 
   sidebarColapsado = window.innerWidth <= 900;
 
@@ -35,6 +39,14 @@ export class AdminComponent implements OnInit {
   itemsPorPagina = 5;
 
   opcionesItemsPorPagina = [5, 10, 20, 50];
+  readonly estadoCitaOptions: ComboboxOption[] = [
+    { value: '', label: 'Todos los estados' },
+    { value: 'pendiente', label: 'Pendientes' },
+    { value: 'confirmada', label: 'Confirmadas' },
+    { value: 'completada', label: 'Completadas' },
+    { value: 'cancelada', label: 'Canceladas' }
+  ];
+  readonly itemsPaginaOptions: ComboboxOption[] = [5, 10, 20, 50].map(value => ({ value, label: `Mostrar ${value} citas` }));
 
   currentDate = new Date();
   calendarDays: any[] = [];
@@ -58,6 +70,15 @@ export class AdminComponent implements OnInit {
   ];
 
   anios = [2025, 2026, 2027, 2028, 2029, 2030];
+  readonly mesOptions: ComboboxOption[] = this.meses.map((label, value) => ({ value, label }));
+  readonly anioOptions: ComboboxOption[] = this.anios.map(value => ({ value, label: String(value) }));
+  readonly estadoCalendarioOptions: ComboboxOption[] = [
+    { value: '', label: 'Todos' },
+    { value: 'pendiente', label: 'Pendientes' },
+    { value: 'confirmada', label: 'Confirmadas' },
+    { value: 'completada', label: 'Completadas' },
+    { value: 'cancelada', label: 'Canceladas' }
+  ];
 
   constructor(private adminService: AdminService, private router: Router) {}
 
@@ -67,7 +88,7 @@ export class AdminComponent implements OnInit {
   }
 
   cambiarSeccion(
-    seccion: 'resumen' | 'citas' | 'calendario' | 'voz'
+    seccion: 'resumen' | 'citas' | 'calendario' | 'voz' | 'clientes' | 'demanda' | 'repuestos'
   ): void {
     this.seccionActiva = seccion;
 
@@ -454,6 +475,12 @@ export class AdminComponent implements OnInit {
         return 'Calendario de citas';
       case 'voz':
         return 'Métricas de voz';
+      case 'clientes':
+        return 'Actividad de clientes';
+      case 'demanda':
+        return 'Demanda de servicios';
+      case 'repuestos':
+        return 'Repuestos y precios';
       default:
         return 'Panel Admin';
     }
