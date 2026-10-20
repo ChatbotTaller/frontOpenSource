@@ -1,0 +1,54 @@
+<section class="module-shell client-activity-module">
+  <header class="module-heading">
+    <div><h2>Actividad de clientes</h2><p>Consulta el alcance, la recurrencia y el detalle de las citas desde una sola vista.</p></div>
+    <div class="module-filters" aria-label="Filtros de clientes con citas">
+      <label>Periodo<app-combobox [(ngModel)]="period" (ngModelChange)="onFilterChange()" [options]="periodOptions" ariaLabel="Periodo de actividad"></app-combobox></label>
+      <label>Estado<app-combobox [(ngModel)]="status" (ngModelChange)="onFilterChange()" [options]="statusOptions" ariaLabel="Estado de las citas"></app-combobox></label>
+    </div>
+  </header>
+
+  <nav class="module-tabs" role="tablist" aria-label="Vistas de actividad de clientes">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'summary'" [class.active]="activeTab === 'summary'" (click)="setTab('summary')">Clientes que solicitaron citas</button>
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'ranking'" [class.active]="activeTab === 'ranking'" (click)="setTab('ranking')">Clientes con más citas</button>
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'detail'" [class.active]="activeTab === 'detail'" (click)="setTab('detail')">Detalle por cliente</button>
+  </nav>
+
+  <div class="module-tab-panel" role="tabpanel">
+    <div *ngIf="activeTab === 'summary'" class="summary-view">
+      <div class="module-stats" aria-label="Resumen de actividad de clientes">
+        <article><span>Clientes</span><strong>{{ summary.total_clients }}</strong></article>
+        <article><span>Citas en el periodo</span><strong>{{ summary.total_appointments }}</strong></article>
+        <article><span>Citas recurrentes</span><strong>{{ summary.repeat_clients }}</strong></article>
+      </div>
+      <div class="summary-explanation">
+        <h3>Lectura del periodo seleccionado</h3>
+        <p>Los indicadores consideran únicamente las citas que coinciden con el periodo y el estado elegidos. Cambia los filtros para comparar el comportamiento de los clientes.</p>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab === 'ranking'" class="module-chart-panel tab-fill-panel">
+      <div class="panel-heading"><div><h3>Clientes con más citas</h3><p>Se muestran como máximo 10 para mantener una lectura clara.</p></div></div>
+      <div class="chart-frame ranking-chart-scroll" *ngIf="!loading && !error && pagination.total > 0">
+        <div class="ranking-chart-canvas" [style.height.px]="rankingChartHeight">
+          <canvas id="clientActivityChart" aria-label="Gráfico de clientes con más citas"></canvas>
+        </div>
+      </div>
+      <div class="module-state" *ngIf="loading">Cargando actividad de clientes…</div>
+      <div class="module-state error" *ngIf="error">{{ error }}</div>
+      <div class="module-state" *ngIf="!loading && !error && pagination.total === 0">No hay citas que coincidan con estos filtros.</div>
+    </div>
+
+    <div *ngIf="activeTab === 'detail'" class="module-table-panel tab-fill-panel detail-panel">
+      <div class="panel-heading table-tools"><div><h3>Detalle por cliente</h3><p>{{ pagination.total }} clientes encontrados</p></div><label class="search-field"><span class="sr-only">Buscar cliente</span><input [(ngModel)]="search" (ngModelChange)="onSearchChange()" placeholder="Buscar por nombre o teléfono" /></label></div>
+      <div class="responsive-table" *ngIf="!loading && items.length">
+        <table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Total</th><th>Completadas</th><th>Canceladas</th><th>Última cita</th></tr></thead>
+          <tbody><tr *ngFor="let client of items"><td data-label="Cliente"><strong>{{ client.cliente_nombre }}</strong></td><td data-label="Teléfono">{{ client.cliente_telefono }}</td><td data-label="Total"><span class="count-badge">{{ client.total_citas }}</span></td><td data-label="Completadas">{{ client.completadas }}</td><td data-label="Canceladas">{{ client.canceladas }}</td><td data-label="Última cita">{{ client.ultima_cita | date:'dd/MM/yyyy' }}</td></tr></tbody>
+        </table>
+      </div>
+      <div class="module-state" *ngIf="loading">Cargando el detalle de clientes…</div>
+      <div class="module-state error" *ngIf="error">{{ error }}</div>
+      <div class="module-state" *ngIf="!loading && !error && !items.length">No se encontraron clientes con estos filtros.</div>
+      <footer class="module-pagination" *ngIf="!loading && pagination.total > 0"><span>Página {{ pagination.page }} de {{ pagination.pages }}</span><div><button (click)="changePage(page - 1)" [disabled]="page === 1">Anterior</button><button (click)="changePage(page + 1)" [disabled]="page === pagination.pages">Siguiente</button></div></footer>
+    </div>
+  </div>
+</section>

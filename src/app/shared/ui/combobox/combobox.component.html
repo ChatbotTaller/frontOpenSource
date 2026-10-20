@@ -1,0 +1,33 @@
+<div class="combobox" [class.open]="open" [class.disabled]="disabled">
+  <button
+    type="button"
+    class="combobox-trigger"
+    [disabled]="disabled"
+    [attr.aria-label]="ariaLabel"
+    [attr.aria-expanded]="open"
+    [attr.aria-controls]="listboxId"
+    [attr.data-testid]="testId || null"
+    aria-haspopup="listbox"
+    (click)="toggle()"
+    (keydown)="onKeydown($event)">
+    <span>{{ selectedLabel }}</span>
+    <span class="combobox-chevron" aria-hidden="true"></span>
+  </button>
+
+  <div *ngIf="open" class="combobox-menu" [id]="listboxId" role="listbox" [attr.aria-label]="ariaLabel">
+    <button
+      *ngFor="let option of options; let index = index"
+      type="button"
+      class="combobox-option"
+      role="option"
+      [disabled]="option.disabled"
+      [class.selected]="value === option.value"
+      [class.active]="activeIndex === index"
+      [attr.aria-selected]="value === option.value"
+      (pointerenter)="activeIndex = index"
+      (click)="choose(option)">
+      <span>{{ option.label }}</span>
+      <span *ngIf="value === option.value" class="selection-mark" aria-hidden="true"></span>
+    </button>
+  </div>
+</div>

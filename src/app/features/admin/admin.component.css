@@ -2,8 +2,17 @@
   box-sizing: border-box;
 }
 
+:host {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
 .admin-layout {
-  height: 100vh;
+  height: 100dvh;
   background: #0d0d0d;
   color: #f0ede8;
   display: grid;
@@ -106,6 +115,15 @@
   font-weight: 600;
 }
 
+.sidebar-group-label {
+  margin: 16px 12px 2px;
+  color: rgba(240,237,232,0.34);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
 .sidebar-link span {
   width: 22px;
   display: inline-flex;
@@ -115,10 +133,33 @@
 /* MAIN */
 .admin-main {
   min-width: 0;
-  height: 100vh;
+  height: 100dvh;
   background: #0d0d0d;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* La vista modular de clientes ocupa el alto disponible sin desbordar la página. */
+.admin-main.compact-client-view {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.admin-main.compact-client-view .admin-topbar {
+  flex: 0 0 auto;
+}
+
+.admin-main.compact-client-view .admin-content {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.admin-main.compact-client-view .admin-section {
+  height: 100%;
+  min-height: 0;
 }
 
 .admin-topbar {
@@ -394,6 +435,8 @@
   min-width: 220px;
 }
 
+.filter-combobox { min-width: 210px; }
+
 .filter-input:focus,
 .filter-select:focus {
   border-color: rgba(224,49,30,0.4);
@@ -405,6 +448,49 @@
 
 .filter-select option {
   background: #1c1c1c;
+}
+
+.filter-select,
+.calendar-filter select,
+.calendar-status-filter select {
+  appearance: none;
+  color-scheme: dark;
+  cursor: pointer;
+  padding-right: 40px;
+  background-color: #171717;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c9c4bd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+
+.filter-select:hover,
+.calendar-filter select:hover,
+.calendar-status-filter select:hover {
+  border-color: rgba(255,255,255,.22);
+  background-color: #1d1d1d;
+}
+
+.filter-select:focus,
+.calendar-filter select:focus,
+.calendar-status-filter select:focus {
+  border-color: rgba(224,49,30,.7);
+  box-shadow: 0 0 0 3px rgba(224,49,30,.13);
+  outline: none;
+}
+
+.filter-select option,
+.calendar-filter select option,
+.calendar-status-filter select option {
+  background: #171717;
+  color: #f0ede8;
+}
+
+.filter-select option:checked,
+.calendar-filter select option:checked,
+.calendar-status-filter select option:checked {
+  background: linear-gradient(#6f211b, #6f211b);
+  color: #ffffff;
 }
 
 /* TABLE */
@@ -602,6 +688,8 @@ tbody tr:last-child td {
   align-items: center;
 }
 
+.calendar-filter app-combobox { min-width: 132px; }
+
 .calendar-filter select {
   background: #1d1d1d;
   color: #fff;
@@ -633,6 +721,8 @@ tbody tr:last-child td {
   font-size: 12px;
   font-weight: 600;
 }
+
+.calendar-status-filter app-combobox { min-width: 150px; }
 
 .calendar-status-filter select {
   background: #1d1d1d;
@@ -900,6 +990,21 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 900px) {
+  .admin-main.compact-client-view {
+    display: block;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .admin-main.compact-client-view .admin-content {
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .admin-main.compact-client-view .admin-section {
+    height: auto;
+  }
+
   .admin-layout,
   .admin-layout.sidebar-hidden {
     grid-template-columns: 1fr;
@@ -951,7 +1056,8 @@ tbody tr:last-child td {
   }
 
   .filter-input,
-  .filter-select {
+  .filter-select,
+  .filter-combobox {
     min-width: unset;
     width: 100%;
   }

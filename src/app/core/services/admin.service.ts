@@ -4,6 +4,10 @@ import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
 
+export interface AdminQueryParams {
+  [key: string]: string | number | boolean | undefined;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -73,5 +77,34 @@ export class AdminService {
     return this.http.get(`${this.apiUrl}/metricas/voz`, {
       headers: this.getHeaders()
     }).pipe(catchError(error => this.handleAuthError(error)));
+  }
+
+  getClientesConCitas(params: AdminQueryParams): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/insights/clientes-citas`, {
+      headers: this.getHeaders(),
+      params: this.cleanParams(params)
+    }).pipe(catchError(error => this.handleAuthError(error)));
+  }
+
+  getDemandaServicios(period: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/insights/demanda-servicios`, {
+      headers: this.getHeaders(),
+      params: { period }
+    }).pipe(catchError(error => this.handleAuthError(error)));
+  }
+
+  getRepuestos(params: AdminQueryParams): Observable<any> {
+    return this.http.get(`${this.apiUrl}/admin/repuestos`, {
+      headers: this.getHeaders(),
+      params: this.cleanParams(params)
+    }).pipe(catchError(error => this.handleAuthError(error)));
+  }
+
+  private cleanParams(params: AdminQueryParams): Record<string, string | number | boolean> {
+    return Object.fromEntries(
+      Object.entries(params).filter((entry): entry is [string, string | number | boolean] =>
+        entry[1] !== undefined && entry[1] !== ''
+      )
+    );
   }
 }
